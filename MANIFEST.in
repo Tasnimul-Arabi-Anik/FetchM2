@@ -1,5 +1,7 @@
 include README.md
 include LICENSE
+include test.tsv
+include environment.yml
 recursive-include src/fetchm2/data *.csv *.json
 recursive-include examples *.tsv
 recursive-include docs *.md

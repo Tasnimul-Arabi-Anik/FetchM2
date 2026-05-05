@@ -1,0 +1,18 @@
+name: fetchm2
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python>=3.10
+  - pip
+  - pandas>=2.0
+  - requests>=2.31
+  - tqdm>=4.66
+  - matplotlib>=3.7
+  - seaborn>=0.13
+  - plotly>=5.20
+  - xmltodict>=0.13
+  - taxonkit
+  - pip:
+      - -e .

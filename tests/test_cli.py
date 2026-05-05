@@ -27,6 +27,9 @@ def test_metadata_cli_offline(tmp_path: Path, monkeypatch) -> None:
     audit_path = outdir / "audit" / "standardization_audit.md"
     assert clean_path.exists()
     assert audit_path.exists()
+    assert (outdir / "metadata_analysis" / "metadata_analysis_report.md").exists()
+    assert (outdir / "metadata_analysis" / "tables" / "field_coverage_summary.csv").exists()
+    assert (outdir / "metadata_analysis" / "tables" / "top_values_by_field.csv").exists()
     df = pd.read_csv(clean_path)
     assert "Host_SD" in df.columns
     assert "Isolation_Source_SD" in df.columns
@@ -68,3 +71,37 @@ def test_sequence_check_only_cli(tmp_path: Path, monkeypatch) -> None:
     )
     main()
     assert (seq_out / "failed_accessions.txt").exists()
+
+
+def test_analyze_cli_generates_figures(tmp_path: Path, monkeypatch) -> None:
+    input_path = Path(__file__).resolve().parents[1] / "examples" / "offline_metadata.tsv"
+    meta_out = tmp_path / "meta"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "fetchm2",
+            "metadata",
+            "--input",
+            str(input_path),
+            "--outdir",
+            str(meta_out),
+            "--offline",
+            "--no-analysis",
+        ],
+    )
+    main()
+    analysis_out = tmp_path / "analysis"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "fetchm2",
+            "analyze",
+            "--input",
+            str(meta_out / "metadata_output" / "fetchm2_clean.csv"),
+            "--outdir",
+            str(analysis_out),
+        ],
+    )
+    main()
+    assert (analysis_out / "metadata_analysis_report.md").exists()
+    assert (analysis_out / "tables" / "numeric_summary.csv").exists()

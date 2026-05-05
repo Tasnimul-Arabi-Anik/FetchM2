@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from . import __version__
+from .analysis import generate_metadata_analysis
 from .audit import production_gate, summarize_rows, write_audit_outputs
 from .metadata import run_metadata
 from .sequence import run_sequence_downloads
@@ -42,6 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
     metadata.add_argument("--workers", type=int, default=3, help="Metadata fetch workers.")
     metadata.add_argument("--sleep", type=float, default=0.34, help="Delay before BioSample requests.")
     metadata.add_argument("--offline", action="store_true", help="Do not fetch BioSample metadata; standardize existing columns only.")
+    metadata.add_argument("--no-analysis", action="store_true", help="Skip metadata analysis tables and figures.")
     metadata.set_defaults(func=run_metadata_command)
 
     run = subparsers.add_parser("run", help="Run metadata standardization and optionally download sequences.")
@@ -54,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--workers", type=int, default=3, help="Metadata fetch workers.")
     run.add_argument("--sleep", type=float, default=0.34, help="Delay before BioSample requests.")
     run.add_argument("--offline", action="store_true", help="Do not fetch BioSample metadata; standardize existing columns only.")
+    run.add_argument("--no-analysis", action="store_true", help="Skip metadata analysis tables and figures.")
     run.add_argument("--download", action="store_true", help="Download sequences after metadata standardization.")
     run.add_argument("--download-workers", type=int, default=4, help="Sequence download workers.")
     run.add_argument("--retries", type=int, default=3, help="Download retries.")
@@ -77,6 +80,12 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--input", required=True, type=Path, help="Path to fetchm2_clean.csv.")
     audit.add_argument("--outdir", required=True, type=Path, help="Audit output directory.")
     audit.set_defaults(func=run_audit_command)
+
+    analyze = subparsers.add_parser("analyze", help="Generate metadata analysis tables and figures from a clean CSV.")
+    analyze.add_argument("--input", required=True, type=Path, help="Path to fetchm2_clean.csv or another metadata CSV.")
+    analyze.add_argument("--outdir", required=True, type=Path, help="Analysis output directory.")
+    analyze.add_argument("--top-n", type=int, default=30, help="Top values to show in each plot.")
+    analyze.set_defaults(func=run_analyze_command)
     return parser
 
 
@@ -106,8 +115,11 @@ def run_metadata_command(args: argparse.Namespace) -> None:
         workers=args.workers,
         sleep=args.sleep,
         offline=args.offline,
+        analysis=not args.no_analysis,
     )
     print(f"Wrote clean metadata: {result['clean_path']}")
+    if result["analysis"]:
+        print(f"Wrote metadata analysis: {result['analysis']['analysis_dir']}")
     print(f"Production gate: {'PASS' if result['production_ready'] else 'FAIL'}")
 
 
@@ -122,8 +134,12 @@ def run_all_command(args: argparse.Namespace) -> None:
         workers=args.workers,
         sleep=args.sleep,
         offline=args.offline,
+        analysis=not args.no_analysis,
     )
     print(f"Wrote clean metadata: {result['clean_path']}")
+    if result["analysis"]:
+        print(f"Wrote metadata analysis: {result['analysis']['analysis_dir']}")
+    print(f"Production gate: {'PASS' if result['production_ready'] else 'FAIL'}")
     if args.download:
         summary = run_sequence_downloads(
             input_path=Path(result["clean_path"]),
@@ -164,6 +180,15 @@ def run_audit_command(args: argparse.Namespace) -> None:
         print(f"Hard failures: {failures}")
     if warnings:
         print(f"Warnings: {warnings}")
+
+
+def run_analyze_command(args: argparse.Namespace) -> None:
+    import pandas as pd
+
+    df = pd.read_csv(args.input).fillna("")
+    result = generate_metadata_analysis(df, args.outdir, top_n=args.top_n)
+    print(f"Wrote metadata analysis: {result['analysis_dir']}")
+    print(f"Figures generated: {result['figure_count']}")
 
 
 def main() -> None:
