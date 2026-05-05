@@ -1,0 +1,6 @@
+Assembly Accession	Assembly Name	Organism Name	ANI Check status	CheckM completeness	Host	Collection Date	Geographic Location	Isolation Source	Sample Type	Isolation Site	Environment Medium	Host Disease	Host Health State
+GCF_000001.1	Test assembly 1	Escherichia coli	OK	99.1	human blood	2020-04-01	Bangladesh: Dhaka	blood	blood	vein		healthy	healthy
+GCF_000002.1	Test assembly 2	Salmonella enterica	OK	98.4	cattle feces	2019	United States: Texas	feces	feces	rectum		diseased	mastitis
+GCF_000003.1	Test assembly 3	Vibrio cholerae	OK	97.0	not collected	2021-07	soil around the Arctic Ocean	soil	soil		soil		
+GCF_000004.1	Test assembly 4	Staphylococcus aureus	Failed	96.2	bacteria culture	2022	Hospital	pure culture	culture			unknown	
+GCF_000005.1	Test assembly 5	Campylobacter jejuni	OK	95.5	turkey breast sandwich	2023	ground turkey	food	meat		retail food		

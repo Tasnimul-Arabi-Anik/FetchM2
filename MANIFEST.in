@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+recursive-include src/fetchm2/data *.csv *.json
+recursive-include examples *.tsv
+recursive-include docs *.md

@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fetchm2"
+version = "0.1.0"
+description = "Standalone comprehensive genome metadata standardization and sequence download toolkit."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  {name = "Tasnimul Arabi Anik", email = "arabianik987@gmail.com"}
+]
+keywords = ["NCBI", "BioSample", "metadata", "genomics", "standardization", "sequence-download"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+  "pandas>=2.0",
+  "requests>=2.31",
+  "tqdm>=4.66",
+  "matplotlib>=3.7",
+  "seaborn>=0.13",
+  "plotly>=5.20",
+  "kaleido>=0.2.1,<1.0.0",
+  "xmltodict>=0.13",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "build>=1.2",
+  "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Tasnimul-Arabi-Anik/FetchM2"
+Repository = "https://github.com/Tasnimul-Arabi-Anik/FetchM2"
+Issues = "https://github.com/Tasnimul-Arabi-Anik/FetchM2/issues"
+
+[project.scripts]
+fetchm2 = "fetchm2.cli:main"
+fetchM2 = "fetchm2.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fetchm2 = ["data/*.csv", "data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

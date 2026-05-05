@@ -1,0 +1,409 @@
+synonym,decision,note
+sea,non_host_source,Post-audit correction 2026-04-30: ambiguous marine/source word was over-mapped to a Lepidoptera genus; keep out of Host_SD unless manually curated with stronger context.
+sea water,non_host_source,Post-audit correction 2026-04-30: marine water/source material
+seawater,non_host_source,Post-audit correction 2026-04-30: marine water/source material
+deep sea water,non_host_source,Post-audit correction 2026-04-30: marine water/source material
+deep-sea water,non_host_source,Post-audit correction 2026-04-30: marine water/source material
+brackish water,non_host_source,Post-audit correction 2026-04-30: water/source material
+baltic sea water,non_host_source,Post-audit correction 2026-04-30: marine water/source material
+sewage plant,non_host_source,Post-audit correction 2026-04-30: wastewater facility/source context; batch1 reviewed source/environment descriptor; block from Host_SD
+bacteria culture,non_host_source,Post-audit correction 2026-04-30: microbial culture descriptor; batch1 reviewed non-host culture/lab artifact; block from Host_SD
+bacterial culture,non_host_source,Post-audit correction 2026-04-30: microbial culture descriptor
+microbial culture,non_host_source,Post-audit correction 2026-04-30: microbial culture descriptor
+"N. Ennis, Tisa lab UNH",non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Instituto de Productos Lacteos de Asturias (IPLA)-CSIC,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Chiu-Chung Young,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Pickle,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+Sand Borer,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+deep-sea sediments,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+Dove (unknown),not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+lake,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+Hanbang bio lab,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+laboratory of anaerobic microorganisms,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Laboratory of Bionanotechnology,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+"LBBMA, Federal University of Vicosa",non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+"Amity Institute of Biotechnology, Rajasthan",non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Grown in Campylobacter selective agar.,non_host_source,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+"Molecular Diagnostics Laboratory, Research Center of Biotechnology of the Russian Academy of Sciences",non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Psitacine (unknown),not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+Lab-generated mutant 1,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+clostridium,non_host_source,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+Dr. Ting Zhou Lab,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+0,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1009,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1591,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+104,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1589,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+275,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+251,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+355,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+245,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+313,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+236,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+291,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+429,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+260,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+341,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+266,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+314,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+253,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+435,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+15,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1010,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1013,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+384,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+112,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1592,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+829,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+841,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+854,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+849,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+848,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+847,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+846,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+844,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+843,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+842,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+853,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+287,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+851,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+87,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+178,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+850,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+832,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+834,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+207,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+831,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+888,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1008,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1005,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+845,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+461,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+4579,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+197,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+323,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+679,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1421,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1420,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1419,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1422,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1424,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1425,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+4571,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+830,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2219,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3394,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+59,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+362,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+760,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2979,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+234,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+381,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+449,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3367,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+58,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+479,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1004,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+539,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1002,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+195,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1001,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+114,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+31,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+998,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+989,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+215,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+220,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+991,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+189,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+225,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+126,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+81,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+368,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+145,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+16,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+26,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+458,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3396,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+329,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+1423,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+295,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+451,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2995,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3357,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+244,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+277,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+231,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+678,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+544,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3775,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+996,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3003,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+283,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+252,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+581,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3303,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2985,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2402,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+408,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+3389,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2406,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+64,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+402,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+344,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+999,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+271,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+383,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+403,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+360,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+2410,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+34,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+The State Key Laboratory Breeding Base of Basic Science of Stomatology,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+TS,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+WB,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+"SW4848was obtained from City Park Lake, Baton Rouge, Louisiana, U.S.A.",non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+Central Muga Eri Research Training Institute,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Homemade pickle,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+Sichuan pickle,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+dairy products,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+brown sand,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+"School of Life Sciences, Arizona State University",non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Mud of hot spring,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+University of Groningen,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+Centre for Chemical Biology,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+NO,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+Morbier Cheese,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+St Nectars Cheese,non_host_source,AI reviewed apply_only_if_host_empty: Non-host/source material; safe only when not overwriting a real Host_SD.
+dd,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+National University of Trujillo,non_host_source,AI reviewed approve_blank: Looks like person/institution/lab descriptor rather than biological host.
+N,not_identifiable,AI reviewed approve_blank: Safe to blank/mark non-host or missing.
+GWG,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+Host-associated,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+Personnel,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+Qing Ren,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+USA,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+BHK,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+Wei Dai,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+Bacillus,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+microbial,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Rhodotorula mucilaginosa JGTA-S1,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Bacillus thuringiensis subsp,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Lactobacillus plantarum IMAU10120,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Streptomyces yatensis CY-1,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Vibrio alginolyticus LF TCBS 15,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Vibrio parahaemolyticus IPNGS16,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+eye makeup preparations powder,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Grown in Bordet-Gengou agar.,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Grown in Bordetella parapertussis specific medium.,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+hospital_environmrnt,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Isochrysis aff. galbana 'Tahitian isolate,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Medium 987,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Nasonia vitripennis LabII strain,non_host_source,Cluster instruction says non-host/source/microbe/lab descriptor; no Host_SD rule created.
+Amaru Indians,not_identifiable,Cluster instruction says blank/not identifiable; no Host_SD rule created.
+Pseudomonas,not_identifiable,"targeted host review 2026-04-30; bacterial self/source term, not eukaryotic host in bacterial metadata; blocked from host and secondary source routing 2026-04-30"
+Synechococcus,not_identifiable,"targeted host review 2026-04-30; microbial term, not host; blocked from host and secondary source routing 2026-04-30"
+Grown in Blood agar culture medium.,non_host_source,targeted host review 2026-04-30; culture medium descriptor; batch1 reviewed non-host culture/lab artifact; block from Host_SD
+Prof. Gail Preston,not_identifiable,"targeted host review 2026-04-30; person name, not host"
+Zhang Yuzhong,not_identifiable,"targeted host review 2026-04-30; person name, not host"
+Yuping Zhang,not_identifiable,"targeted host review 2026-04-30; person name, not host"
+Wen-Jun Li,not_identifiable,"targeted host review 2026-04-30; person name, not host"
+Istituto di Microbiologia Universita' Cattolica del Sacro Cuore,not_identifiable,targeted host review 2026-04-30; institution/lab descriptor
+Laboratorio de Estudios Ecogenomicos UAEM,not_identifiable,targeted host review 2026-04-30; institution/lab descriptor
+Envirnment,non_host_source,targeted host review 2026-04-30; misspelled environment/source term
+communal hospital surface,non_host_source,targeted host review 2026-04-30; healthcare surface/source term; batch1 reviewed source/environment descriptor; block from Host_SD
+hospital communal surface,non_host_source,targeted host review 2026-04-30; healthcare surface/source term; batch1 reviewed source/environment descriptor; block from Host_SD
+Leptospirosis,not_identifiable,"targeted host review 2026-04-30; disease term, not host; blocked from host and secondary source routing 2026-04-30"
+Apheresis platelet concentrate-Preservative solution,non_host_source,targeted host review 2026-04-30; clinical product/source descriptor
+TOPO10F',not_identifiable,targeted host review 2026-04-30; lab strain/vector descriptor; blocked from host and secondary source routing 2026-04-30; batch1 reviewed vector/construct label; block from Host_SD and source routing
+XLOLR,not_identifiable,targeted host review 2026-04-30; lab strain/vector descriptor; blocked from host and secondary source routing 2026-04-30; batch1 reviewed vector/construct label; block from Host_SD and source routing
+Pure culture of bacteria,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+bacteria pure culture,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+bacteria cell culture,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+Grown in chocolate agar culture medium,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+culture,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+Pure culture,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+Cell culture collection,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+bacterial extracellular vesicles,non_host_source,batch1 reviewed non-host culture/lab artifact; block from Host_SD
+DH5a,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+MC1061/P3,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+XL1-MFR Blue,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+XL10-gold,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+ElectroTen Blue cells,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+HeLa229 cell line,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+MRC-5 infected cells,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+cell lines,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+mammalian cells,non_host_source,batch1 reviewed lab strain/cell-line artifact; block from Host_SD
+synthetic construct,not_identifiable,batch1 reviewed vector/construct label; block from Host_SD and source routing
+CDC,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+BGSC database,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Microbiology Section,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Guangdong Microbial Culture Collection Center (GDMCC),not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Laboratorio de Biologia Molecular Aplicada,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+INMI RAS,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+GEUS Denmark,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Shungui Zhou,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Valeria Souza,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Xiao-Hua Zhang,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Xinqing Zhao,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Professor Qiao,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Ye Lin Seo,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+TAWAF ALI SHAH,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Qiu dongru,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Yun Tian,not_identifiable,batch1 reviewed person/institution/database label; block from Host_SD
+Dust,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+wetland,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+surface within hospital,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+hosptial surface,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+environmental surface,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+surface of hospital environment,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+venous catheters,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+Pathogen.env,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+Environnment,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+envirnomental,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+patient environment,non_host_source,batch1 reviewed source/environment descriptor; block from Host_SD
+no hosts,missing,batch1 reviewed missing/not-provided host token
+no applicable,missing,batch1 reviewed missing/not-provided host token
+not aplicable,missing,batch1 reviewed missing/not-provided host token
+Nil,missing,batch1 reviewed missing/not-provided host token
+untold,missing,batch1 reviewed missing/not-provided host token
+missed,missing,batch1 reviewed missing/not-provided host token
+mssing,missing,batch1 reviewed missing/not-provided host token
+Not reported,missing,batch1 reviewed missing/not-provided host token
+host,missing,batch1 reviewed missing/not-provided host token
+Please add your host name HERE,missing,batch1 reviewed missing/not-provided host token
+Others - Please add your host name HERE,missing,batch1 reviewed missing/not-provided host token
+FCS,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+LWG,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+Mixed,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+PCU,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+QI0055,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+STOCK,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+cell,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+germ,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+type-material,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+vial,missing,targeted refinement batch 9-12 2026-05-01; missing/not identifiable cleanup
+Beer,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Chinese sauerkraut,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Cryoconite,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Ducks feed,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Fodder,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Jeotgal,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Kefir grain,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Lijuanjuan,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Meat unspecified,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Meju,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Myeongtae-baechu-kimchi,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Pasta dish,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Pickled Vegetables,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Pixian Douban,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Prof. Chenghang Sun,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Purified from MRC-5 infected cells by sonication and differential centrifugation.,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Sausage,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Tibetan kefir grain,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Traditional dry sausage,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+activesludge,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+douchi,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+frozen green asparagus,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+garlic ferments,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+geothermal,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+hake filet,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+hypolith,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+jamiecosley,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+kefir grains,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+koumiss,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+marine sedment,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+micro-polyethylene,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+ocean sediments,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+pickles,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+pit mud,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+probiotic,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+pâté,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+red meat,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+salad,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+seuejot,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+seujeot,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+sichuan bacon,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+spice,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+the bottom layer of biofilter,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+the middle layer of biofilter,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+the top layer of biofilter,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+uranium mine tailings,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+veal,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+vegetables/fruits,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+wall paintings,non_host_source,targeted refinement batch 9-12 2026-05-01; source/lab/food artifact cleanup
+Nostoc flagelliforme colonies,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Chelatococcus,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Cronobacter malonaticus LMG 23826,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Haemophilus ducreyi,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Bacteriophage,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Viruses; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Exiguobacterium,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Canicola,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Trichodesmium,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Acetobacteraceae,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+sea whip gorgonian,non_host_source,Batch 2 host curation 2026-05-05: reviewed source-like descriptor; keep out of Host_SD unless explicit host context is curated
+Methanosarcina mazei strain VKM B-2370,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Archaea; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+Streptomyces,non_host_source,Batch 2 host curation 2026-05-05: Exact TaxonKit match is Bacteria; bacterial/archaeal/viral taxa are blocked from Host_SD in this curation policy.
+"human, animal or environmental",non_host_source,Batch 3 2026-05-05: reviewed mixed/source descriptor; not a reliable Host_SD value
+Chicken environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+pig farm environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental bovine,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+flock environment broiler (Gallus gallus),non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Environment of broiler farm,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Bacteria isolated in solid culture medium,non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+Sus scrofa domesticus: environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Environment of broiler farms,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental swabs sponge,non_host_source,Batch 3 2026-05-05: reviewed mixed/source descriptor; not a reliable Host_SD value
+water for animals,non_host_source,Batch 3 2026-05-05: reviewed mixed/source descriptor; not a reliable Host_SD value
+environment of equine clinic,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+"Environment, animals",non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Dog Environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental avian,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+biofilm; non-axenic culture containing Capilliphycus salinus and associated bacteria,non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+turkey environmental,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Fish and aquatic environment of Lake Victoria,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Pig Special Project (Sampling of Livestock and Poultry Environment),non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+equine hospital environmental,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+pigeon farm environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental turtle tank,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental-chicken,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+equine environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental feline,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+"Environment, poultry farm",non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environment corn silage,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+"Environment, poultry barn",non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Avian Environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+pure culture bacteria,non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+pure bacteria culture,non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+bacteria cells (from culture that grew from a isolated colony),non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+Pure culture of Gram (+) bacteria,non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+a piece of sunken bamboo in the marine environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Environmental-turtle tank water,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Poultry-Environmental,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Chicken slaughterhouse environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+broiler environment - boot sock,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Environmental surface sponge,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Duck Pemise. Environmental drag booties from the duck barn floor,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental clean incubator pheasant barn,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental-quail,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Environment feeding stuffs plant,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+bovine environmental plant leaves,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+avian environmental incubator,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+"Animal Feed, Environment, Feed Mill",non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental porcine,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Lab bacteria culture,non_host_source,"Batch 3 2026-05-05: bacterial culture/lab artifact, not host organism"
+Environment sponge from processin plant,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Processing environment sponge from retailer,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environment contaminated by Homo sapiens patients,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+non mosquito Diptera environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Mushroom environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Dairy plant (environmental),non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environmental sponges,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Plant-associated environment,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+environment of live poultry market,non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+animal-associated environment [ENVO:01001002],non_host_source,Batch 3 2026-05-05: environment/context phrase without explicit specimen material
+Jiuqu,non_host_source,Long-tail host curation 2026-05-05: fermentation starter/food-processing source descriptor, not Host_SD.
+Hainan,non_host_source,Long-tail host curation 2026-05-05: geography/location token found in Host field; keep out of Host_SD.
+Sichuan,non_host_source,Long-tail host curation 2026-05-05: geography/location token found in Host field; keep out of Host_SD.
+Shanxi,non_host_source,Long-tail host curation 2026-05-05: geography/location token found in Host field; keep out of Host_SD.
+"Bootsock, Great Harewood",non_host_source,Long-tail host curation 2026-05-05: boot sock/sample-location descriptor, not Host_SD.

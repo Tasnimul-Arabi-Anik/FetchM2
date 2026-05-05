@@ -1,0 +1,810 @@
+{
+  "Afghanistan": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Albania": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Algeria": {
+    "Continent": "Africa",
+    "Subcontinent": "Northern Africa"
+  },
+  "Andorra": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Angola": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Antigua and Barbuda": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Argentina": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Armenia": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Australia": {
+    "Continent": "Oceania",
+    "Subcontinent": "Australia and New Zealand"
+  },
+  "Austria": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Azerbaijan": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Bahamas": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Bahrain": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Bangladesh": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Barbados": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Belarus": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Belgium": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Belize": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Benin": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Bhutan": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Bolivia": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Bosnia and Herzegovina": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Botswana": {
+    "Continent": "Africa",
+    "Subcontinent": "Southern Africa"
+  },
+  "Brazil": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Brunei": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Bulgaria": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Burkina Faso": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Burundi": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Cabo Verde": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Cambodia": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Cameroon": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Canada": {
+    "Continent": "North America",
+    "Subcontinent": "Northern America"
+  },
+  "Central African Republic": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Chad": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Chile": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "China": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "Colombia": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Comoros": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Congo": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Costa Rica": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Croatia": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Cuba": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Cyprus": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Czech Republic": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Czechoslovakia": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Democratic Republic of the Congo": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Denmark": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Djibouti": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Dominica": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Dominican Republic": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Ecuador": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Egypt": {
+    "Continent": "Africa",
+    "Subcontinent": "Northern Africa"
+  },
+  "El Salvador": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Equatorial Guinea": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Eritrea": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Estonia": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Eswatini": {
+    "Continent": "Africa",
+    "Subcontinent": "Southern Africa"
+  },
+  "Ethiopia": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Fiji": {
+    "Continent": "Oceania",
+    "Subcontinent": "Melanesia"
+  },
+  "Finland": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "France": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Gabon": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Gambia": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Georgia": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Germany": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Ghana": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Greece": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Grenada": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Guam": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
+  },
+  "Guatemala": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Guinea": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Guinea-Bissau": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Guyana": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Haiti": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Honduras": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Hong Kong": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "Hungary": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Iceland": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "India": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Indonesia": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Iran": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Iraq": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Ireland": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Israel": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Italy": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Ivory Coast": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Jamaica": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Japan": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "Jordan": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Kazakhstan": {
+    "Continent": "Asia",
+    "Subcontinent": "Central Asia"
+  },
+  "Kenya": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Kiribati": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
+  },
+  "Kuwait": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Kyrgyzstan": {
+    "Continent": "Asia",
+    "Subcontinent": "Central Asia"
+  },
+  "Laos": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Latvia": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Lebanon": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Lesotho": {
+    "Continent": "Africa",
+    "Subcontinent": "Southern Africa"
+  },
+  "Liberia": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Libya": {
+    "Continent": "Africa",
+    "Subcontinent": "Northern Africa"
+  },
+  "Liechtenstein": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Lithuania": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Luxembourg": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Madagascar": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Malawi": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Malaysia": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Maldives": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Mali": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Malta": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Marshall Islands": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
+  },
+  "Mauritania": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Mauritius": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Mayotte": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Mexico": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Micronesia": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
+  },
+  "Moldova": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Monaco": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Mongolia": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "Montenegro": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Morocco": {
+    "Continent": "Africa",
+    "Subcontinent": "Northern Africa"
+  },
+  "Mozambique": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Myanmar": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Namibia": {
+    "Continent": "Africa",
+    "Subcontinent": "Southern Africa"
+  },
+  "Nauru": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
+  },
+  "Nepal": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Netherlands": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "New Zealand": {
+    "Continent": "Oceania",
+    "Subcontinent": "Australia and New Zealand"
+  },
+  "Nicaragua": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Niger": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Nigeria": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "North Korea": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "North Macedonia": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Northern Asia": {
+    "Continent": "Asia",
+    "Subcontinent": "Northern Asia"
+  },
+  "Norway": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Oman": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Pakistan": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Palau": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
+  },
+  "Palestine": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Panama": {
+    "Continent": "North America",
+    "Subcontinent": "Central America"
+  },
+  "Papua New Guinea": {
+    "Continent": "Oceania",
+    "Subcontinent": "Melanesia"
+  },
+  "Paraguay": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Peru": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Philippines": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Poland": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Portugal": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Qatar": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Republic of the Congo": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Romania": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Russia": {
+    "Continent": "Asia",
+    "Subcontinent": "Northern Asia"
+  },
+  "Rwanda": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Saint Kitts and Nevis": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Saint Lucia": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Saint Vincent and the Grenadines": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Samoa": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
+  },
+  "San Marino": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Sao Tome and Principe": {
+    "Continent": "Africa",
+    "Subcontinent": "Middle Africa"
+  },
+  "Saudi Arabia": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Senegal": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Serbia": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Seychelles": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Sierra Leone": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Singapore": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Slovakia": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "Slovenia": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Solomon Islands": {
+    "Continent": "Oceania",
+    "Subcontinent": "Melanesia"
+  },
+  "Somalia": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "South Africa": {
+    "Continent": "Africa",
+    "Subcontinent": "Southern Africa"
+  },
+  "South Korea": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "South Sudan": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Spain": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Sri Lanka": {
+    "Continent": "Asia",
+    "Subcontinent": "Southern Asia"
+  },
+  "Sudan": {
+    "Continent": "Africa",
+    "Subcontinent": "Northern Africa"
+  },
+  "Suriname": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Sweden": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "Switzerland": {
+    "Continent": "Europe",
+    "Subcontinent": "Western Europe"
+  },
+  "Syria": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Taiwan": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
+  },
+  "Tajikistan": {
+    "Continent": "Asia",
+    "Subcontinent": "Central Asia"
+  },
+  "Tanzania": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Thailand": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Timor-Leste": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Togo": {
+    "Continent": "Africa",
+    "Subcontinent": "Western Africa"
+  },
+  "Tonga": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
+  },
+  "Trinidad and Tobago": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Tunisia": {
+    "Continent": "Africa",
+    "Subcontinent": "Northern Africa"
+  },
+  "Turkey": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Turkmenistan": {
+    "Continent": "Asia",
+    "Subcontinent": "Central Asia"
+  },
+  "Tuvalu": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
+  },
+  "Uganda": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Ukraine": {
+    "Continent": "Europe",
+    "Subcontinent": "Eastern Europe"
+  },
+  "United Arab Emirates": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "United Kingdom": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
+  "United States": {
+    "Continent": "North America",
+    "Subcontinent": "Northern America"
+  },
+  "Uruguay": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Uzbekistan": {
+    "Continent": "Asia",
+    "Subcontinent": "Central Asia"
+  },
+  "Vanuatu": {
+    "Continent": "Oceania",
+    "Subcontinent": "Melanesia"
+  },
+  "Vatican City": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
+  },
+  "Venezuela": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "Vietnam": {
+    "Continent": "Asia",
+    "Subcontinent": "South-Eastern Asia"
+  },
+  "Yemen": {
+    "Continent": "Asia",
+    "Subcontinent": "Western Asia"
+  },
+  "Zambia": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  },
+  "Zimbabwe": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
+  }
+}
