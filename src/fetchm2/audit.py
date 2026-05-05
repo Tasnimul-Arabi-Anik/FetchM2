@@ -181,6 +181,51 @@ def rule_count_summary() -> dict[str, Any]:
     }
 
 
+def first_present(row: dict[str, Any], keys: list[str]) -> str:
+    for key in keys:
+        value = str(row.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def assembly_biosample_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    assembly_values = [
+        first_present(row, ["Assembly Accession"])
+        for row in rows
+    ]
+    assembly_values = [value for value in assembly_values if value]
+    biosample_values = [
+        first_present(row, ["BioSample", "Assembly BioSample Accession", "BioSample Accession"])
+        for row in rows
+    ]
+    biosample_values = [value for value in biosample_values if value]
+
+    biosample_to_assemblies: dict[str, set[str]] = {}
+    for row in rows:
+        biosample = first_present(row, ["BioSample", "Assembly BioSample Accession", "BioSample Accession"])
+        assembly = first_present(row, ["Assembly Accession"])
+        if biosample:
+            biosample_to_assemblies.setdefault(biosample, set())
+            if assembly:
+                biosample_to_assemblies[biosample].add(assembly)
+
+    unique_assemblies = len(set(assembly_values))
+    unique_biosamples = len(set(biosample_values))
+    return {
+        "assembly_rows": len(rows),
+        "assembly_accession_present_rows": len(assembly_values),
+        "unique_assembly_accessions": unique_assemblies,
+        "duplicate_assembly_accession_extra_rows": max(0, len(assembly_values) - unique_assemblies),
+        "biosample_linked_rows": len(biosample_values),
+        "unique_biosample_accessions": unique_biosamples,
+        "biosample_reused_extra_rows": max(0, len(biosample_values) - unique_biosamples),
+        "biosamples_with_multiple_assembly_accessions": sum(
+            1 for assemblies in biosample_to_assemblies.values() if len(assemblies) > 1
+        ),
+    }
+
+
 def issue_rows(rows: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     rules = load_rules()
     country_mismatches: list[dict[str, Any]] = []
@@ -266,8 +311,10 @@ def summarize_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     issues = issue_rows(rows)
     broad_values = Counter(str(row.get("Isolation_Source_SD_Broad") or "").strip() for row in rows if value_present(row.get("Isolation_Source_SD_Broad")))
     fetch_failed = sum(1 for row in rows if row.get("Metadata Fetch Status") == "fetch_failed")
+    unit_counts = assembly_biosample_summary(rows)
     return {
         "rows": total,
+        **unit_counts,
         "host_taxid_mapped": host_taxid,
         "host_taxid_percent": percent(host_taxid, total),
         "host_review_needed": host_review,
@@ -351,6 +398,13 @@ def write_audit_outputs(rows: list[dict[str, Any]], output_dir: Path) -> dict[st
         "",
         f"Production gate: {'PASS' if production_ready else 'FAIL'}",
         f"Rows scanned: {summary['rows']}",
+        f"Unique Assembly Accession values: {summary['unique_assembly_accessions']}",
+        f"Duplicate Assembly Accession extra rows: {summary['duplicate_assembly_accession_extra_rows']}",
+        f"BioSample-linked rows: {summary['biosample_linked_rows']}",
+        f"Unique BioSample accessions represented: {summary['unique_biosample_accessions']}",
+        f"BioSample reuse extra rows: {summary['biosample_reused_extra_rows']}",
+        f"BioSamples linked to multiple Assembly Accession values: {summary['biosamples_with_multiple_assembly_accessions']}",
+        "BioSample fetch unit: unique BioSample accession; clean output unit: assembly row.",
         f"Host TaxID mapped: {summary['host_taxid_mapped']} ({summary['host_taxid_percent']}%)",
         f"Host review needed: {summary['host_review_needed']}",
         f"Country present: {summary['country_present']} ({summary['country_percent']}%)",

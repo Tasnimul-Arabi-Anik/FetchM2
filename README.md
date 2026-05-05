@@ -32,7 +32,7 @@ fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```bash
 python -m venv fetchm2-env
 source fetchm2-env/bin/activate
-pip install fetchm2==0.1.4
+pip install fetchm2==0.1.5
 ```
 
 Verify:
@@ -118,6 +118,7 @@ fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 3. Review the main outputs:
 
 - `results/metadata_output/fetchm2_clean.csv`
+- `results/metadata_output/fetchm2_all_assemblies.csv`
 - `results/metadata_analysis/metadata_analysis_report.md`
 - `results/audit/standardization_audit.md`
 - `results/audit/production_readiness_gate.md`
@@ -295,6 +296,8 @@ results/
 ├── metadata_output/
 │   ├── fetchm2_clean.csv
 │   ├── fetchm2_clean.tsv
+│   ├── fetchm2_all_assemblies.csv
+│   ├── fetchm2_all_assemblies.tsv
 │   └── fetchm2_report.md
 ├── metadata_analysis/
 │   ├── metadata_analysis_report.md
@@ -321,6 +324,14 @@ results/
     ├── failed_accessions.txt
     ├── sequence_download_summary.csv
     └── fetchm2_sequence_cache.sqlite3
+```
+
+By default, `fetchm2_clean.csv` follows original FetchM behavior: it selects one representative row per `Assembly Name`, preferring RefSeq `GCF_*` over GenBank `GCA_*` when both are present. This prevents paired GCA/GCF assemblies sharing the same BioSample from being double-counted in downstream prevalence analyses. The full row-preserving output is still saved as `fetchm2_all_assemblies.csv`.
+
+If you intentionally want paired GCA/GCF rows retained in `fetchm2_clean.csv`, use:
+
+```bash
+fetchm2 metadata --input ncbi_dataset.tsv --outdir results --keep-assembly-duplicates
 ```
 
 ## Standardized Metadata Fields
@@ -409,6 +420,8 @@ These are conservative deterministic fields. Disease words are not treated as sa
 ## Sequence Download Features
 
 FetchM2 downloads genome FASTA files from the NCBI genomes FTP structure using `Assembly Accession` and `Assembly Name`.
+
+When using the default `fetchm2_clean.csv`, sequence download operates on representative assemblies only, matching original FetchM behavior. Use `fetchm2_all_assemblies.csv` or `--keep-assembly-duplicates` only when you deliberately want both paired `GCA_*` and `GCF_*` accessions.
 
 Filtering options:
 

@@ -22,6 +22,7 @@ NCBI_ESUMMARY_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi
 NCBI_TIMEOUT = 60
 DEFAULT_FETCH_RETRIES = 4
 DEFAULT_RETRY_BACKOFF = 1.5
+FALLBACK_CACHE_XML_KEY = "_FetchM2_Cache_XML"
 
 ATTRIBUTE_KEY_MAP = {
     "isolation_source": "Isolation Source",
@@ -92,6 +93,31 @@ def filter_quality(df: pd.DataFrame, ani: list[str] | None, checkm: float | None
     if checkm is not None and "CheckM completeness" in filtered:
         filtered = filtered[pd.to_numeric(filtered["CheckM completeness"], errors="coerce") >= checkm]
     return filtered
+
+
+def select_representative_assemblies(df: pd.DataFrame) -> pd.DataFrame:
+    if "Assembly Name" not in df.columns or "Assembly Accession" not in df.columns:
+        return df.copy()
+
+    working = df.copy()
+    working["_fetchm2_original_order"] = range(len(working))
+    assembly_name = working["Assembly Name"].fillna("").astype(str).str.strip()
+    with_name = working[assembly_name != ""].copy()
+    without_name = working[assembly_name == ""].copy()
+    if not with_name.empty:
+        with_name["_fetchm2_gcf_priority"] = (
+            with_name["Assembly Accession"].fillna("").astype(str).str.startswith("GCF_").astype(int)
+        )
+        with_name = (
+            with_name.sort_values(
+                by=["Assembly Name", "_fetchm2_gcf_priority", "_fetchm2_original_order"],
+                ascending=[True, False, True],
+            )
+            .drop_duplicates(subset=["Assembly Name"], keep="first")
+        )
+    selected = pd.concat([with_name, without_name], ignore_index=True)
+    selected = selected.sort_values("_fetchm2_original_order")
+    return selected.drop(columns=["_fetchm2_original_order", "_fetchm2_gcf_priority"], errors="ignore").reset_index(drop=True)
 
 
 class MetadataCache:
@@ -331,6 +357,7 @@ def fetch_biosample_via_esummary(
     result = parse_biosample_xml(sampledata)
     if result.get("Metadata Fetch Status") == "ok":
         result["Metadata Fetch Reason"] = "esummary_fetched"
+        result[FALLBACK_CACHE_XML_KEY] = sampledata
     return result
 
 
@@ -344,18 +371,23 @@ def fetch_biosample_metadata(
 ) -> dict[str, str]:
     cached = cache.get(biosample)
     if cached is not None:
-        return parse_biosample_xml(cached)
+        cached_result = parse_biosample_xml(cached)
+        if cached_result.get("Metadata Fetch Status") == "ok":
+            return cached_result
     response = request_with_retries(
         NCBI_EFETCH_URL,
         params=ncbi_params(api_key, email, db="biosample", id=biosample, retmode="xml"),
         rate_limiter=rate_limiter,
     )
-    cache.set(biosample, response.text)
     result = parse_biosample_xml(response.text)
     if result.get("Metadata Fetch Status") == "ok":
+        cache.set(biosample, response.text)
         return result
     fallback = fetch_biosample_via_esummary(biosample, api_key=api_key, email=email, rate_limiter=rate_limiter)
     if fallback.get("Metadata Fetch Status") == "ok":
+        fallback_cache_xml = fallback.pop(FALLBACK_CACHE_XML_KEY, "")
+        if fallback_cache_xml:
+            cache.set(biosample, fallback_cache_xml)
         fallback["Metadata Fetch Reason"] = f"efetch_{result.get('Metadata Fetch Reason', 'missing')}_then_{fallback['Metadata Fetch Reason']}"
         return fallback
     return result
@@ -424,6 +456,7 @@ def run_metadata(
     sleep: float = 0.34,
     offline: bool = False,
     analysis: bool = True,
+    keep_assembly_duplicates: bool = False,
 ) -> dict[str, Any]:
     outdir.mkdir(parents=True, exist_ok=True)
     metadata_dir = outdir / "metadata_output"
@@ -443,11 +476,15 @@ def run_metadata(
         offline=offline,
     )
     standardized = standardize_rows(rows)
-    clean_df = pd.DataFrame(standardized)
+    all_df = pd.DataFrame(standardized)
+    all_df.to_csv(metadata_dir / "fetchm2_all_assemblies.csv", index=False)
+    all_df.to_csv(metadata_dir / "fetchm2_all_assemblies.tsv", sep="\t", index=False)
+    clean_df = all_df if keep_assembly_duplicates else select_representative_assemblies(all_df)
     clean_path = metadata_dir / "fetchm2_clean.csv"
     clean_df.to_csv(clean_path, index=False)
     clean_df.to_csv(metadata_dir / "fetchm2_clean.tsv", sep="\t", index=False)
-    summary = write_audit_outputs(standardized, audit_dir)
+    clean_rows = clean_df.fillna("").to_dict(orient="records")
+    summary = write_audit_outputs(clean_rows, audit_dir)
     analysis_result = {}
     if analysis:
         analysis_result = generate_metadata_analysis(clean_df, outdir / "metadata_analysis")
@@ -456,7 +493,13 @@ def run_metadata(
         "# FetchM2 Run Report",
         "",
         f"Input: {input_path}",
+        f"All assembly rows after filters: {len(all_df)}",
         f"Rows processed: {summary['rows']}",
+        f"Representative assembly mode: {'disabled; all assembly rows retained' if keep_assembly_duplicates else 'enabled; one row per Assembly Name, preferring GCF accessions'}",
+        f"Unique Assembly Accession values: {summary.get('unique_assembly_accessions', 0)}",
+        f"BioSample-linked rows: {summary.get('biosample_linked_rows', 0)}",
+        f"Unique BioSample accessions represented: {summary.get('unique_biosample_accessions', 0)}",
+        "BioSample fetch unit: unique BioSample accession; clean output unit: assembly row.",
         f"Clean table: {clean_path}",
         f"Metadata analysis: {outdir / 'metadata_analysis' if analysis else 'disabled'}",
         f"Production gate: {'PASS' if production_ready else 'FAIL'}",

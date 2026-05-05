@@ -44,6 +44,11 @@ def build_parser() -> argparse.ArgumentParser:
     metadata.add_argument("--sleep", type=float, default=0.34, help="Delay before BioSample requests.")
     metadata.add_argument("--offline", action="store_true", help="Do not fetch BioSample metadata; standardize existing columns only.")
     metadata.add_argument("--no-analysis", action="store_true", help="Skip metadata analysis tables and figures.")
+    metadata.add_argument(
+        "--keep-assembly-duplicates",
+        action="store_true",
+        help="Keep paired GCA/GCF assembly rows in fetchm2_clean.csv instead of selecting one representative per Assembly Name.",
+    )
     metadata.set_defaults(func=run_metadata_command)
 
     run = subparsers.add_parser("run", help="Run metadata standardization and optionally download sequences.")
@@ -57,6 +62,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--sleep", type=float, default=0.34, help="Delay before BioSample requests.")
     run.add_argument("--offline", action="store_true", help="Do not fetch BioSample metadata; standardize existing columns only.")
     run.add_argument("--no-analysis", action="store_true", help="Skip metadata analysis tables and figures.")
+    run.add_argument(
+        "--keep-assembly-duplicates",
+        action="store_true",
+        help="Keep paired GCA/GCF assembly rows in fetchm2_clean.csv instead of selecting one representative per Assembly Name.",
+    )
     run.add_argument("--download", action="store_true", help="Download sequences after metadata standardization.")
     run.add_argument("--download-workers", type=int, default=4, help="Sequence download workers.")
     run.add_argument("--retries", type=int, default=3, help="Download retries.")
@@ -126,6 +136,14 @@ def print_final_summary(
     print("")
     print("FetchM2 completed.")
     print(f"Rows processed: {total}")
+    print(f"Unique Assembly Accession values: {summary.get('unique_assembly_accessions', 0)}")
+    if summary.get("biosample_linked_rows"):
+        print(
+            "BioSample-linked rows: "
+            f"{summary.get('biosample_linked_rows', 0)}; "
+            f"unique BioSamples represented: {summary.get('unique_biosample_accessions', 0)}"
+        )
+        print("BioSample fetch unit: unique BioSample accession; clean output unit: assembly row.")
     coverage("Host TaxID mapped", "host_taxid_mapped", "host_taxid_percent")
     coverage("Country present", "country_present", "country_percent")
     coverage("Collection year present", "collection_year_present", "collection_year_percent")
@@ -160,6 +178,7 @@ def run_metadata_command(args: argparse.Namespace) -> None:
         sleep=args.sleep,
         offline=args.offline,
         analysis=not args.no_analysis,
+        keep_assembly_duplicates=args.keep_assembly_duplicates,
     )
     print(f"Wrote clean metadata: {result['clean_path']}")
     if result["analysis"]:
@@ -186,6 +205,7 @@ def run_all_command(args: argparse.Namespace) -> None:
         sleep=args.sleep,
         offline=args.offline,
         analysis=not args.no_analysis,
+        keep_assembly_duplicates=args.keep_assembly_duplicates,
     )
     print(f"Wrote clean metadata: {result['clean_path']}")
     if result["analysis"]:

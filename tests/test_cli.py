@@ -81,6 +81,58 @@ def test_sequence_check_only_cli(tmp_path: Path, monkeypatch) -> None:
     assert (seq_out / "sequence_download_summary.csv").exists()
 
 
+def test_metadata_cli_selects_representative_assemblies_by_default(tmp_path: Path, monkeypatch) -> None:
+    input_path = Path(__file__).resolve().parents[1] / "test.tsv"
+    outdir = tmp_path / "dedup"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "fetchm2",
+            "metadata",
+            "--input",
+            str(input_path),
+            "--outdir",
+            str(outdir),
+            "--offline",
+            "--no-analysis",
+        ],
+    )
+    main()
+
+    clean_df = pd.read_csv(outdir / "metadata_output" / "fetchm2_clean.csv")
+    all_df = pd.read_csv(outdir / "metadata_output" / "fetchm2_all_assemblies.csv")
+    summary_df = pd.read_csv(outdir / "audit" / "standardization_summary.csv")
+    assert len(all_df) == 200
+    assert len(clean_df) == 100
+    assert int(summary_df.loc[0, "rows"]) == 100
+    assert clean_df["Assembly Name"].nunique() == 100
+    assert clean_df["Assembly Accession"].str.startswith("GCF_").all()
+
+
+def test_metadata_cli_can_keep_assembly_duplicates(tmp_path: Path, monkeypatch) -> None:
+    input_path = Path(__file__).resolve().parents[1] / "test.tsv"
+    outdir = tmp_path / "keep_duplicates"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "fetchm2",
+            "metadata",
+            "--input",
+            str(input_path),
+            "--outdir",
+            str(outdir),
+            "--offline",
+            "--no-analysis",
+            "--keep-assembly-duplicates",
+        ],
+    )
+    main()
+
+    clean_df = pd.read_csv(outdir / "metadata_output" / "fetchm2_clean.csv")
+    assert len(clean_df) == 200
+    assert clean_df["Assembly Name"].nunique() == 100
+
+
 def test_sequence_directory_cache_is_thread_safe(tmp_path: Path) -> None:
     cache = DirectoryCache(tmp_path / "sequence_cache.sqlite3")
 
@@ -220,9 +272,21 @@ def test_biosample_esummary_fallback(monkeypatch, tmp_path: Path) -> None:
             rate_limiter=RequestRateLimiter(0),
             cache=cache,
         )
+        used_esummary = any("esummary.fcgi" in url for url in calls)
+        calls.clear()
+        cached_result = fetch_biosample_metadata(
+            "SAMN00000001",
+            api_key=None,
+            email=None,
+            rate_limiter=RequestRateLimiter(0),
+            cache=cache,
+        )
     finally:
         cache.close()
     assert result["Metadata Fetch Status"] == "ok"
     assert result["Host"] == "human"
     assert "esummary_fetched" in result["Metadata Fetch Reason"]
-    assert any("esummary.fcgi" in url for url in calls)
+    assert used_esummary
+    assert cached_result["Metadata Fetch Status"] == "ok"
+    assert cached_result["Host"] == "human"
+    assert calls == []

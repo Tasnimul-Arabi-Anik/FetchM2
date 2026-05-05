@@ -2,6 +2,8 @@
 
 FetchM2 downloads genome FASTA files from the public NCBI genomes FTP layout using the assembly accession and assembly name in `fetchm2_clean.csv`.
 
+By default, `fetchm2_clean.csv` contains one representative row per `Assembly Name`, preferring RefSeq `GCF_*` over GenBank `GCA_*` when paired rows share the same assembly name. This follows original FetchM behavior and prevents duplicate downloads/counting for paired GCA/GCF assemblies. If you need all input assembly rows, use `fetchm2_all_assemblies.csv` or rerun metadata with `--keep-assembly-duplicates`.
+
 ## Typical Workflow
 
 ```bash

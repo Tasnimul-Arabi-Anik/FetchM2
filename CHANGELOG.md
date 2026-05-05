@@ -4,6 +4,40 @@ All notable FetchM2 release changes are recorded here.
 
 FetchM2 is a standalone CLI successor to FetchM. It packages expanded deterministic metadata standardization, metadata analysis, audit/validation reporting, and sequence-download filtering into a terminal workflow.
 
+## 0.1.5 - 2026-05-06
+
+### Changed
+
+- Changed the default `fetchm2_clean.csv` output to follow original FetchM representative assembly behavior:
+  - one row per `Assembly Name`
+  - `GCF_*` accessions preferred over paired `GCA_*` accessions
+- Added `metadata_output/fetchm2_all_assemblies.csv` and `.tsv` to preserve every standardized assembly row before representative selection.
+- Added `--keep-assembly-duplicates` for users who intentionally want paired GCA/GCF rows retained in `fetchm2_clean.csv`.
+- Added assembly-vs-BioSample unit counts to terminal summaries, `fetchm2_report.md`, `standardization_summary.csv`, and `standardization_audit.md`.
+
+### Fixed
+
+- Fixed BioSample fallback caching so recovered esummary metadata is cached instead of incomplete direct XML.
+- Stale incomplete BioSample cache entries are now ignored and retried.
+
+### Added
+
+- Added `docs/FETCHM_COMPATIBILITY.md`.
+- Added regression coverage for:
+  - paired GCA/GCF rows sharing one BioSample
+  - representative clean output
+  - duplicate-preserving override
+  - recovered BioSample fallback cache reuse
+
+### Validation
+
+- `pytest`: `15 passed`
+- Bundled `test.tsv` default output:
+  - input rows: `200`
+  - `fetchm2_all_assemblies.csv`: `200` rows
+  - default `fetchm2_clean.csv`: `100` representative rows
+  - representative accessions in paired test dataset: all `GCF_*`
+
 ## 0.1.4 - 2026-05-06
 
 ### Fixed

@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
 Validation date: 2026-05-05
-Current validation target: `fetchm2 0.1.4`
+Current validation target: `fetchm2 0.1.5`
 
 ## Source Baselines
 
@@ -279,4 +279,37 @@ Sequences failed: 0
 Downloaded files:
 - GCA_006094395.1_ASM609439v1_genomic.fna
 - GCF_006094395.1_ASM609439v1_genomic.fna
+```
+
+## Additional 0.1.5 FetchM Compatibility Validation
+
+The 0.1.5 patch aligns FetchM2 clean-output behavior with original FetchM.
+
+Compatibility behavior:
+
+```text
+BioSample metadata fetch unit: unique BioSample accession
+Clean output unit: one representative row per Assembly Name
+Representative priority: GCF_* over GCA_*
+Full row-preserving output: metadata_output/fetchm2_all_assemblies.csv
+Override: --keep-assembly-duplicates
+```
+
+Validation on bundled `test.tsv`:
+
+```text
+Input rows: 200
+Unique Assembly Name values: 100
+fetchm2_all_assemblies.csv rows: 200
+fetchm2_clean.csv rows by default: 100
+fetchm2_clean.csv Assembly Accession prefix: all GCF_ in the paired test dataset
+--keep-assembly-duplicates clean rows: 200
+pytest: 15 passed
+```
+
+The BioSample fallback cache was also hardened:
+
+```text
+Direct incomplete BioSample XML no longer overwrites recovered fallback metadata in cache.
+Recovered esummary XML is cached and reused on subsequent calls without refetching.
 ```
