@@ -34,17 +34,19 @@ def first_present(row: dict[str, Any], names: Iterable[str]) -> str:
     return ""
 
 
-def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames: list[str] = []
+    resolved_fieldnames: list[str] = list(fieldnames or [])
     seen: set[str] = set()
+    for key in resolved_fieldnames:
+        seen.add(key)
     for row in rows:
         for key in row:
             if key not in seen:
-                fieldnames.append(key)
+                resolved_fieldnames.append(key)
                 seen.add(key)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=resolved_fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 

@@ -4,6 +4,12 @@ FetchM2 is a comprehensive standalone command-line toolkit for bacterial genome 
 
 FetchM2 is designed as the updated successor to the original FetchM standalone tool. It keeps the same practical command-line workflow, but adds many more standardized metadata fields, richer filtering, packaged curation rules, audit outputs, and reproducible test data.
 
+Recommended one-command workflow:
+
+```bash
+fetchm2 run --input ncbi_dataset.tsv --outdir results --download
+```
+
 ## Key Features
 
 - Standalone command-line tool installable with `pip` or a conda environment.
@@ -100,6 +106,29 @@ Run metadata standardization and sequence download in one command:
 fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```
 
+## Typical Species/Genus Workflow
+
+1. Download an NCBI Genome Datasets TSV or CSV for your target species or genus.
+2. Run FetchM2:
+
+```bash
+fetchm2 run --input ncbi_dataset.tsv --outdir results --download
+```
+
+3. Review the main outputs:
+
+- `results/metadata_output/fetchm2_clean.csv`
+- `results/metadata_analysis/metadata_analysis_report.md`
+- `results/audit/standardization_audit.md`
+- `results/audit/production_readiness_gate.md`
+- `results/sequence/`
+
+For large NCBI retrieval jobs without an API key, use a conservative request delay:
+
+```bash
+fetchm2 run --input ncbi_dataset.tsv --outdir results --download --workers 3 --sleep 0.4
+```
+
 ## Metadata Retrieval Workflow
 
 FetchM2 can work in two modes.
@@ -139,6 +168,8 @@ fetchm2 metadata --help
 fetchm2 run --help
 fetchm2 seq --help
 fetchm2 audit --help
+fetchm2 validate --help
+fetchm2 analyze --help
 ```
 
 ### `fetchm2 metadata`
@@ -220,6 +251,16 @@ fetchm2 audit \
   --outdir results/audit_rerun
 ```
 
+### `fetchm2 validate`
+
+Runs the same production-readiness checks as `audit`, but names the workflow explicitly for CLI validation:
+
+```bash
+fetchm2 validate \
+  --input results/metadata_output/fetchm2_clean.csv \
+  --outdir results/validation
+```
+
 ### `fetchm2 analyze`
 
 Generates metadata analysis outputs from any existing clean metadata CSV.
@@ -247,6 +288,41 @@ FetchM2 writes:
 - `metadata_analysis/tables/numeric_summary.csv`
 - `metadata_analysis/figures/*.png`
 
+Typical output structure:
+
+```text
+results/
+├── metadata_output/
+│   ├── fetchm2_clean.csv
+│   ├── fetchm2_clean.tsv
+│   └── fetchm2_report.md
+├── metadata_analysis/
+│   ├── metadata_analysis_report.md
+│   ├── tables/
+│   └── figures/
+├── audit/
+│   ├── standardization_summary.csv
+│   ├── standardization_audit.md
+│   ├── production_readiness_gate.md
+│   ├── production_readiness_gate.json
+│   ├── top_host_review_needed.csv
+│   ├── non_country_values_in_country.csv
+│   ├── country_continent_mismatch.csv
+│   ├── country_subcontinent_mismatch.csv
+│   ├── invalid_collection_years.csv
+│   ├── invalid_host_like_sample_type.csv
+│   ├── source_like_mapped_hosts.csv
+│   ├── source_like_unmapped_hosts_for_review.csv
+│   ├── broad_vocabulary_leakage.csv
+│   ├── sequence_readiness.csv
+│   └── rule_count_summary.csv
+└── sequence/
+    ├── *.fna
+    ├── failed_accessions.txt
+    ├── sequence_download_summary.csv
+    └── fetchm2_sequence_cache.sqlite3
+```
+
 ## Standardized Metadata Fields
 
 FetchM2 keeps the original input columns and adds standardized fields.
@@ -268,6 +344,7 @@ Original FetchM had host-oriented metadata summaries. FetchM2 expands this into 
 - `Host_Genus`
 - `Host_Species`
 - `Host_Common_Name`
+- `Host_Context_SD`
 - `Host_Match_Method`
 - `Host_Confidence`
 - `Host_Review_Status`
@@ -392,6 +469,7 @@ FetchM2 ships deterministic rules in `src/fetchm2/data/`:
 - `controlled_categories.csv`
 - `approved_broad_categories.csv`
 - `geography_reviewed_rules.csv`
+- `collection_date_reviewed_rules.csv`
 - `country_mapping.json`
 
 These rules let the standalone tool produce richer standardized fields without needing a web database.
@@ -417,6 +495,7 @@ python -m build
 python -m twine check dist/*
 python -m pip install dist/fetchm2-*.whl
 fetchm2 metadata --input examples/offline_metadata.tsv --outdir smoke_out --offline
+fetchm2 validate --input smoke_out/metadata_output/fetchm2_clean.csv --outdir smoke_out/validation
 fetchm2 seq --input smoke_out/metadata_output/fetchm2_clean.csv --outdir smoke_seq --country Bangladesh --check-only
 ```
 

@@ -55,6 +55,7 @@ CORE_STANDARDIZED_FIELDS = [
     "Host_Genus",
     "Host_Species",
     "Host_Common_Name",
+    "Host_Context_SD",
     "Host_Match_Method",
     "Host_Confidence",
     "Host_Review_Status",

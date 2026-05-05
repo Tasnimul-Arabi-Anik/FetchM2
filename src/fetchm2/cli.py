@@ -6,7 +6,7 @@ from pathlib import Path
 
 from . import __version__
 from .analysis import generate_metadata_analysis
-from .audit import production_gate, summarize_rows, write_audit_outputs
+from .audit import production_gate, write_audit_outputs
 from .metadata import run_metadata
 from .sequence import run_sequence_downloads
 
@@ -81,6 +81,11 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--outdir", required=True, type=Path, help="Audit output directory.")
     audit.set_defaults(func=run_audit_command)
 
+    validate = subparsers.add_parser("validate", help="Validate a clean metadata CSV and write production-readiness reports.")
+    validate.add_argument("--input", required=True, type=Path, help="Path to fetchm2_clean.csv.")
+    validate.add_argument("--outdir", required=True, type=Path, help="Validation output directory.")
+    validate.set_defaults(func=run_validate_command)
+
     analyze = subparsers.add_parser("analyze", help="Generate metadata analysis tables and figures from a clean CSV.")
     analyze.add_argument("--input", required=True, type=Path, help="Path to fetchm2_clean.csv or another metadata CSV.")
     analyze.add_argument("--outdir", required=True, type=Path, help="Analysis output directory.")
@@ -104,6 +109,45 @@ def filter_dict(args: argparse.Namespace) -> dict[str, object]:
     }
 
 
+def print_final_summary(
+    summary: dict[str, object],
+    *,
+    clean_path: str | Path | None = None,
+    analysis_dir: str | Path | None = None,
+    audit_dir: str | Path | None = None,
+    sequence_summary: dict[str, object] | None = None,
+    production_ready: bool | None = None,
+) -> None:
+    total = int(summary.get("rows") or 0)
+
+    def coverage(label: str, count_key: str, percent_key: str) -> None:
+        print(f"{label}: {summary.get(count_key, 0)} / {total} ({summary.get(percent_key, 0)}%)")
+
+    print("")
+    print("FetchM2 completed.")
+    print(f"Rows processed: {total}")
+    coverage("Host TaxID mapped", "host_taxid_mapped", "host_taxid_percent")
+    coverage("Country present", "country_present", "country_percent")
+    coverage("Collection year present", "collection_year_present", "collection_year_percent")
+    coverage("Sample type present", "sample_type_present", "sample_type_percent")
+    coverage("Isolation source present", "isolation_source_present", "isolation_source_percent")
+    coverage("Environment medium present", "environment_medium_present", "environment_medium_percent")
+    if production_ready is not None:
+        print(f"Production gate: {'PASS' if production_ready else 'FAIL'}")
+    if summary.get("host_review_needed"):
+        print(f"Host review needed: {summary['host_review_needed']}")
+    if sequence_summary:
+        print(f"Sequences selected: {sequence_summary.get('selected', 0)}")
+        print(f"Sequences downloaded: {sequence_summary.get('downloaded', 0)}")
+        print(f"Sequences failed/missing: {sequence_summary.get('failed', sequence_summary.get('missing', 0))}")
+    if clean_path:
+        print(f"Clean metadata: {clean_path}")
+    if analysis_dir:
+        print(f"Metadata analysis: {analysis_dir}")
+    if audit_dir:
+        print(f"Audit/validation: {audit_dir}")
+
+
 def run_metadata_command(args: argparse.Namespace) -> None:
     result = run_metadata(
         input_path=args.input,
@@ -121,6 +165,13 @@ def run_metadata_command(args: argparse.Namespace) -> None:
     if result["analysis"]:
         print(f"Wrote metadata analysis: {result['analysis']['analysis_dir']}")
     print(f"Production gate: {'PASS' if result['production_ready'] else 'FAIL'}")
+    print_final_summary(
+        result["summary"],
+        clean_path=result["clean_path"],
+        analysis_dir=result["analysis"].get("analysis_dir") if result["analysis"] else None,
+        audit_dir=args.outdir / "audit",
+        production_ready=result["production_ready"],
+    )
 
 
 def run_all_command(args: argparse.Namespace) -> None:
@@ -140,8 +191,9 @@ def run_all_command(args: argparse.Namespace) -> None:
     if result["analysis"]:
         print(f"Wrote metadata analysis: {result['analysis']['analysis_dir']}")
     print(f"Production gate: {'PASS' if result['production_ready'] else 'FAIL'}")
+    sequence_summary = None
     if args.download:
-        summary = run_sequence_downloads(
+        sequence_summary = run_sequence_downloads(
             input_path=Path(result["clean_path"]),
             outdir=args.outdir / "sequence",
             filters=filter_dict(args),
@@ -151,7 +203,15 @@ def run_all_command(args: argparse.Namespace) -> None:
             max_genomes=args.max_genomes,
             keep_gz=args.keep_gz,
         )
-        print(f"Sequence summary: {summary}")
+        print(f"Sequence summary: {sequence_summary}")
+    print_final_summary(
+        result["summary"],
+        clean_path=result["clean_path"],
+        analysis_dir=result["analysis"].get("analysis_dir") if result["analysis"] else None,
+        audit_dir=args.outdir / "audit",
+        sequence_summary=sequence_summary,
+        production_ready=result["production_ready"],
+    )
 
 
 def run_seq_command(args: argparse.Namespace) -> None:
@@ -180,6 +240,11 @@ def run_audit_command(args: argparse.Namespace) -> None:
         print(f"Hard failures: {failures}")
     if warnings:
         print(f"Warnings: {warnings}")
+    print_final_summary(summary, clean_path=args.input, audit_dir=args.outdir, production_ready=ready)
+
+
+def run_validate_command(args: argparse.Namespace) -> None:
+    run_audit_command(args)
 
 
 def run_analyze_command(args: argparse.Namespace) -> None:

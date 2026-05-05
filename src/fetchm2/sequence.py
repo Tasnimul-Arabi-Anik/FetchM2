@@ -167,6 +167,16 @@ def run_sequence_downloads(
         existing = {path.name.split("_", 2)[0] + "_" + path.name.split("_", 2)[1] for path in outdir.glob("*_genomic.fna*")}
         missing = [accession for accession in expected if accession not in existing]
         (outdir / "failed_accessions.txt").write_text("\n".join(missing) + ("\n" if missing else ""), encoding="utf-8")
+        pd.DataFrame(
+            [
+                {
+                    "assembly_accession": accession,
+                    "status": "exists" if accession in existing else "missing",
+                    "mode": "check-only",
+                }
+                for accession in expected
+            ]
+        ).to_csv(outdir / "sequence_download_summary.csv", index=False)
         return {"selected": len(rows), "missing": len(missing), "downloaded": 0, "failed": len(missing)}
     cache = DirectoryCache(outdir / "fetchm2_sequence_cache.sqlite3")
     results: list[tuple[str, str]] = []

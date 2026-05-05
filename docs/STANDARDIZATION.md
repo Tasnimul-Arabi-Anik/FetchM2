@@ -11,13 +11,14 @@ The packaged files live in `src/fetchm2/data/`:
 - `controlled_categories.csv`: source, sample, environment, disease, and health-state rules.
 - `approved_broad_categories.csv`: allowed broad-category vocabulary.
 - `geography_reviewed_rules.csv`: reviewed special geography cases.
+- `collection_date_reviewed_rules.csv`: reviewed date phrases that need explicit year recovery.
 - `country_mapping.json`: country, continent, and subcontinent mapping extracted from public FetchM.
 
 ## Output Fields
 
 FetchM2 writes the original input columns plus standardized columns including:
 
-- `Host_SD`, `Host_TaxID`, `Host_Rank`, host lineage fields, match method, confidence, and review status.
+- `Host_SD`, `Host_TaxID`, `Host_Rank`, host lineage fields, `Host_Context_SD`, match method, confidence, and review status.
 - `Sample_Type_SD`, `Isolation_Source_SD`, `Isolation_Site_SD`.
 - `Environment_Medium_SD`, `Environment_Broad_Scale_SD`, `Environment_Local_Scale_SD`.
 - `Host_Disease_SD`, `Host_Health_State_SD`.
@@ -28,7 +29,19 @@ FetchM2 writes the original input columns plus standardized columns including:
 The audit gate fails on obvious category leakage:
 
 - non-country values in `Country`
+- country-continent and country-subcontinent mismatches
+- invalid or future `Collection_Year` values
 - host-only values in `Sample_Type_SD`
 - unapproved `Isolation_Source_SD_Broad` values
+- missing required clean standardized columns
 
 Warnings are used for curation backlogs such as high host review counts.
+
+Each `metadata`, `audit`, or `validate` run writes:
+
+- `standardization_audit.md`
+- `standardization_summary.csv`
+- `production_readiness_gate.md`
+- `production_readiness_gate.json`
+- `top_host_review_needed.csv`
+- issue-specific review CSVs for country, year, sample/source/host leakage, broad vocabulary, and sequence readiness.

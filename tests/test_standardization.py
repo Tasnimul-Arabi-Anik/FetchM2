@@ -53,3 +53,17 @@ def test_water_deer_is_host_not_water_medium() -> None:
     assert row["Host_SD"] == "Hydropotes inermis"
     assert row["Host_TaxID"]
     assert row["Environment_Medium_SD"] == ""
+
+
+def test_host_context_recovery_and_date_alias() -> None:
+    row = standardize_row(
+        {
+            "Host": "",
+            "Sample Type": "human feces",
+            "sample_collection_date": "2021-07",
+        }
+    )
+    assert row["Host_SD"] == "Homo sapiens"
+    assert row["Host_Context_SD"] == "human feces"
+    assert row["Host_Match_Method"] == "context_recovery"
+    assert row["Collection_Year"] == "2021"

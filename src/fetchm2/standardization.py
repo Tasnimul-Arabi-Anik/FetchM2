@@ -24,6 +24,7 @@ STANDARDIZED_COLUMNS = [
     "Host_Genus",
     "Host_Species",
     "Host_Common_Name",
+    "Host_Context_SD",
     "Host_Match_Method",
     "Host_Confidence",
     "Host_Review_Status",
@@ -172,6 +173,7 @@ class RuleStore:
     approved_broad: dict[str, set[str]]
     country_mapping: dict[str, dict[str, str]]
     geography_rules: dict[str, str]
+    collection_date_rules: dict[str, str]
 
 
 @lru_cache(maxsize=1)
@@ -232,6 +234,11 @@ def load_rules() -> RuleStore:
         for row in read_package_csv("geography_reviewed_rules.csv")
         if normalize_lookup(row.get("source_value")) and (row.get("country") or "").strip()
     }
+    collection_date_rules = {
+        normalize_lookup(row.get("source_value")): (row.get("year") or "").strip()
+        for row in read_package_csv("collection_date_reviewed_rules.csv")
+        if normalize_lookup(row.get("source_value")) and (row.get("year") or "").strip()
+    }
     country_mapping = read_package_json("country_mapping.json")
     return RuleStore(
         host_exact=host_exact,
@@ -242,6 +249,7 @@ def load_rules() -> RuleStore:
         approved_broad=approved_broad,
         country_mapping=country_mapping,
         geography_rules=geography_rules,
+        collection_date_rules=collection_date_rules,
     )
 
 
@@ -424,6 +432,7 @@ def host_match(value: str, *, allow_substring: bool = True) -> tuple[str, str, s
 def standardize_host(row: dict[str, Any]) -> dict[str, str]:
     original = first_present(row, HOST_ALIASES)
     source_value = original
+    context_value_used = ""
     name, taxid, method, confidence = host_match(original, allow_substring=True)
     if not taxid and method in {"missing", "non_host_source", "not_identifiable", "review_needed"}:
         for aliases in SOURCE_FIELDS.values():
@@ -435,6 +444,7 @@ def standardize_host(row: dict[str, Any]) -> dict[str, str]:
                 name, taxid = context_name, context_taxid
                 method, confidence = "context_recovery", "medium"
                 source_value = context_value
+                context_value_used = context_value
                 break
     cleaned = normalize_lookup(source_value)
     result = {
@@ -442,6 +452,7 @@ def standardize_host(row: dict[str, Any]) -> dict[str, str]:
         "Host_Cleaned": cleaned,
         "Host_SD": name,
         "Host_TaxID": taxid,
+        "Host_Context_SD": context_value_used,
         "Host_Match_Method": method,
         "Host_Confidence": confidence,
         "Host_Review_Status": "accepted" if taxid else method,
@@ -523,7 +534,22 @@ def apply_controlled_rules(row: dict[str, Any]) -> dict[str, str]:
 
 
 def standardize_collection_year(row: dict[str, Any]) -> str:
-    value = first_present(row, ["Collection Date", "collection_date", "collection date", "Assembly Release Date"])
+    rules = load_rules()
+    value = first_present(
+        row,
+        [
+            "Collection Date",
+            "collection_date",
+            "collection date",
+            "sample_collection_date",
+            "date_of_collection",
+            "isolation_date",
+            "Assembly Release Date",
+        ],
+    )
+    key = normalize_lookup(value)
+    if key in rules.collection_date_rules:
+        return rules.collection_date_rules[key]
     match = DATE_YEAR_RE.search(value)
     return match.group(0) if match else ""
 
