@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
 
 from fetchm2.cli import build_parser, main
 from fetchm2.metadata import MetadataCache, RequestRateLimiter, fetch_biosample_metadata
+from fetchm2.sequence import DirectoryCache
 
 
 def test_metadata_cli_offline(tmp_path: Path, monkeypatch) -> None:
@@ -77,6 +79,25 @@ def test_sequence_check_only_cli(tmp_path: Path, monkeypatch) -> None:
     main()
     assert (seq_out / "failed_accessions.txt").exists()
     assert (seq_out / "sequence_download_summary.csv").exists()
+
+
+def test_sequence_directory_cache_is_thread_safe(tmp_path: Path) -> None:
+    cache = DirectoryCache(tmp_path / "sequence_cache.sqlite3")
+
+    def write_and_read(index: int) -> str | None:
+        accession = f"GCA_000000{index:03d}.1"
+        name = f"Assembly {index}"
+        directory = f"{accession}_Assembly_{index}"
+        cache.set(accession, name, directory)
+        return cache.get(accession, name)
+
+    try:
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            results = list(executor.map(write_and_read, range(12)))
+    finally:
+        cache.close()
+
+    assert results == [f"GCA_000000{index:03d}.1_Assembly_{index}" for index in range(12)]
 
 
 def test_analyze_cli_generates_figures(tmp_path: Path, monkeypatch) -> None:

@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
 Validation date: 2026-05-05
-Current validation target: `fetchm2 0.1.3`
+Current validation target: `fetchm2 0.1.4`
 
 ## Source Baselines
 
@@ -244,3 +244,39 @@ pip install fetchm2==0.1.3
 ```
 
 No runtime behavior changed from 0.1.2.
+
+## Additional 0.1.4 Sequence Download Validation
+
+The 0.1.4 patch fixes a sequence-download cache issue found during remote-user-style testing.
+
+Remote-user-style `0.1.3` validation:
+
+```text
+Fresh PyPI install: passed
+fetchm2 --version: fetchm2 0.1.3
+Live metadata run: production gate PASS
+Sequence selection: selected 2 genomes
+Sequence download: failed 2 / 2
+Failure reason: SQLite sequence cache connection was created on the main thread and used inside download worker threads
+```
+
+0.1.4 fix:
+
+```text
+DirectoryCache now opens SQLite with check_same_thread=False
+DirectoryCache serializes cache reads/writes with a lock
+Added threaded DirectoryCache regression test
+pytest: 12 passed
+```
+
+Patched local real-download validation:
+
+```text
+Command: fetchm2 seq --input fetchm2_clean.csv --outdir /tmp/fetchm2_fixed_real_seq_download --max-genomes 2 --download-workers 1 --retries 2 --retry-delay 1
+Sequences selected: 2
+Sequences downloaded: 2
+Sequences failed: 0
+Downloaded files:
+- GCA_006094395.1_ASM609439v1_genomic.fna
+- GCF_006094395.1_ASM609439v1_genomic.fna
+```

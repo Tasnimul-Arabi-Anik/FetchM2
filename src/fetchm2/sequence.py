@@ -4,6 +4,7 @@ import gzip
 import re
 import shutil
 import sqlite3
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
@@ -32,28 +33,32 @@ def build_parent_url(accession: str) -> str:
 
 class DirectoryCache:
     def __init__(self, path: Path) -> None:
-        self.conn = sqlite3.connect(path)
+        self.conn = sqlite3.connect(path, check_same_thread=False)
+        self.lock = threading.Lock()
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS assembly_directory_cache (accession TEXT PRIMARY KEY, assembly_name TEXT, directory TEXT)"
         )
         self.conn.commit()
 
     def get(self, accession: str, name: str) -> str | None:
-        row = self.conn.execute(
-            "SELECT directory FROM assembly_directory_cache WHERE accession = ? AND assembly_name = ?",
-            (accession, normalize_assembly_name(name)),
-        ).fetchone()
+        with self.lock:
+            row = self.conn.execute(
+                "SELECT directory FROM assembly_directory_cache WHERE accession = ? AND assembly_name = ?",
+                (accession, normalize_assembly_name(name)),
+            ).fetchone()
         return None if row is None else str(row[0])
 
     def set(self, accession: str, name: str, directory: str) -> None:
-        self.conn.execute(
-            "INSERT OR REPLACE INTO assembly_directory_cache (accession, assembly_name, directory) VALUES (?, ?, ?)",
-            (accession, normalize_assembly_name(name), directory),
-        )
-        self.conn.commit()
+        with self.lock:
+            self.conn.execute(
+                "INSERT OR REPLACE INTO assembly_directory_cache (accession, assembly_name, directory) VALUES (?, ?, ?)",
+                (accession, normalize_assembly_name(name), directory),
+            )
+            self.conn.commit()
 
     def close(self) -> None:
-        self.conn.close()
+        with self.lock:
+            self.conn.close()
 
 
 def resolve_assembly_directory(accession: str, name: str, cache: DirectoryCache) -> str:

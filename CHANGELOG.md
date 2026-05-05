@@ -4,6 +4,25 @@ All notable FetchM2 release changes are recorded here.
 
 FetchM2 is a standalone CLI successor to FetchM. It packages expanded deterministic metadata standardization, metadata analysis, audit/validation reporting, and sequence-download filtering into a terminal workflow.
 
+## 0.1.4 - 2026-05-06
+
+### Fixed
+
+- Fixed real sequence downloads when using worker threads. The sequence directory SQLite cache is now safe for threaded download workers.
+
+### Added
+
+- Added a regression test that exercises the sequence directory cache from multiple worker threads.
+
+### Validation
+
+- `pytest`: `12 passed`
+- Remote-user-style PyPI install validation found the original `0.1.3` threaded cache failure during real FASTA download.
+- Patched local validation then successfully downloaded two FASTA files from NCBI:
+  - selected: `2`
+  - downloaded: `2`
+  - failed: `0`
+
 ## 0.1.3 - 2026-05-05
 
 ### Changed
@@ -118,4 +137,3 @@ fetchm2 metadata --input examples/offline_metadata.tsv --outdir /tmp/fetchm2_pyp
 - Added commands for metadata processing, audit reporting, analysis, and sequence download.
 - Packaged deterministic rule resources for host, source/sample/environment, geography, broad categories, and country mapping.
 - Added README, validation documentation, sequence-download documentation, metadata-analysis documentation, and release checklist.
-
