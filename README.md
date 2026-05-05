@@ -32,7 +32,7 @@ fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```bash
 python -m venv fetchm2-env
 source fetchm2-env/bin/activate
-pip install fetchm2
+pip install fetchm2==0.1.3
 ```
 
 Verify:

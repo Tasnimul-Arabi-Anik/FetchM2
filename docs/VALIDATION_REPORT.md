@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
 Validation date: 2026-05-05
-Current validation target: `fetchm2 0.1.2`
+Current validation target: `fetchm2 0.1.3`
 
 ## Source Baselines
 
@@ -234,3 +234,13 @@ Known scope notes for `0.1.2`:
 - host lineage is bundled for common hosts and optionally enriched with `taxonkit` when installed
 - embeddings/BGE are intentionally not used in production standardization
 - large-scale sequence download was not run during this validation to avoid unnecessary NCBI load
+
+## Additional 0.1.3 Documentation Validation
+
+The 0.1.3 patch updates the README installation command to use the pinned current PyPI release:
+
+```bash
+pip install fetchm2==0.1.3
+```
+
+No runtime behavior changed from 0.1.2.
