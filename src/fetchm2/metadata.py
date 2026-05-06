@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,7 @@ import requests
 import xmltodict
 from tqdm import tqdm
 
+from . import __version__
 from .analysis import generate_metadata_analysis
 from .audit import production_gate, write_audit_outputs
 from .standardization import standardize_rows
@@ -114,6 +117,38 @@ ISOLATION_SOURCE_FALLBACK_FIELDS = {
     "Isolation Site",
 }
 
+PANR2_CONTRACT_COLUMNS = [
+    "Assembly Accession",
+    "Assembly Name",
+    "Assembly BioSample Accession",
+    "Organism Name",
+    "Geographic Location",
+    "Continent",
+    "Subcontinent",
+    "Collection Date",
+    "Collection_Year",
+    "Host",
+    "Host_SD",
+    "Isolation_Source",
+    "Isolation_Source_SD",
+    "Sample_Type_SD",
+    "Environment_Medium_SD",
+]
+
+COMPLETENESS_FIELDS = [
+    ("country", "Country"),
+    ("continent", "Continent"),
+    ("subcontinent", "Subcontinent"),
+    ("collection_year", "Collection_Year"),
+    ("host_raw", "Host"),
+    ("host_standardized", "Host_SD"),
+    ("source_raw", "Isolation_Source"),
+    ("source_standardized", "Isolation_Source_SD"),
+    ("sample_type_standardized", "Sample_Type_SD"),
+    ("environment_medium_standardized", "Environment_Medium_SD"),
+    ("organism_name", "Organism Name"),
+]
+
 
 def read_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
@@ -153,6 +188,174 @@ def select_representative_assemblies(df: pd.DataFrame) -> pd.DataFrame:
     selected = pd.concat([with_name, without_name], ignore_index=True)
     selected = selected.sort_values("_fetchm2_original_order")
     return selected.drop(columns=["_fetchm2_original_order", "_fetchm2_gcf_priority"], errors="ignore").reset_index(drop=True)
+
+
+def fill_from_aliases(df: pd.DataFrame, target: str, aliases: list[str]) -> None:
+    if target not in df.columns:
+        df[target] = ""
+    target_values = df[target].fillna("").astype(str).str.strip()
+    missing_mask = target_values == ""
+    if not missing_mask.any():
+        return
+    for alias in aliases:
+        if alias not in df.columns or alias == target:
+            continue
+        alias_values = df[alias].fillna("").astype(str).str.strip()
+        fill_mask = missing_mask & (alias_values != "")
+        if fill_mask.any():
+            df.loc[fill_mask, target] = alias_values.loc[fill_mask]
+            target_values = df[target].fillna("").astype(str).str.strip()
+            missing_mask = target_values == ""
+            if not missing_mask.any():
+                return
+
+
+def ensure_pipeline_contract_columns(df: pd.DataFrame) -> pd.DataFrame:
+    working = df.copy()
+    fill_from_aliases(working, "Assembly BioSample Accession", ["BioSample", "BioSample Accession"])
+    fill_from_aliases(working, "Geographic Location", ["geo_loc_name", "BioSample GEO LOC Name", "Country"])
+    fill_from_aliases(
+        working,
+        "Collection Date",
+        [
+            "BioSample Collection Date",
+            "BioSample Collection Timestamp",
+            "BioSample Isolation Date",
+            "Assembly Release Date",
+        ],
+    )
+    fill_from_aliases(working, "Host", ["BioSample Host", "BioSample Specific Host", "BioSample Host Common Name"])
+    fill_from_aliases(working, "Isolation_Source", ["Isolation Source", "BioSample Isolation Source", "Source"])
+    fill_from_aliases(working, "Organism Name", ["organism_name", "Organism", "Species"])
+    for column in PANR2_CONTRACT_COLUMNS:
+        if column not in working.columns:
+            working[column] = ""
+    return working
+
+
+def sequence_basename(row: pd.Series | dict[str, Any]) -> str:
+    accession = str(row.get("Assembly Accession") or "").strip()
+    name = str(row.get("Assembly Name") or "").strip()
+    normalized_name = name.replace(" ", "_") if name else "NA"
+    return f"{accession}_{normalized_name}_genomic" if accession else ""
+
+
+def write_sample_map(df: pd.DataFrame, path: Path) -> None:
+    rows = []
+    for _, row in df.fillna("").iterrows():
+        basename = sequence_basename(row)
+        rows.append(
+            {
+                "sample_id": basename,
+                "Assembly Accession": str(row.get("Assembly Accession") or "").strip(),
+                "Assembly Name": str(row.get("Assembly Name") or "").strip(),
+                "sequence_file": f"{basename}.fna" if basename else "",
+            }
+        )
+    pd.DataFrame(rows, columns=["sample_id", "Assembly Accession", "Assembly Name", "sequence_file"]).to_csv(path, index=False)
+
+
+def write_compatibility_outputs(clean_df: pd.DataFrame, metadata_dir: Path) -> None:
+    clean_df.to_csv(metadata_dir / "fetchm2_clean_compat.csv", index=False)
+    clean_df.to_csv(metadata_dir / "ncbi_clean.csv", index=False)
+
+
+def write_metadata_completeness(df: pd.DataFrame, metadata_dir: Path) -> dict[str, Any]:
+    total = len(df)
+    rows = []
+    coverage: dict[str, float] = {}
+    for label, column in COMPLETENESS_FIELDS:
+        present = int(df[column].fillna("").astype(str).str.strip().ne("").sum()) if column in df.columns else 0
+        percent = round((present / total) * 100, 2) if total else 0.0
+        coverage[label] = percent
+        rows.append(
+            {
+                "field": label,
+                "column": column,
+                "present_rows": present,
+                "total_rows": total,
+                "percent_present": percent,
+            }
+        )
+    pd.DataFrame(rows).to_csv(metadata_dir / "metadata_completeness.csv", index=False)
+    return {"rows": rows, "coverage": coverage}
+
+
+def write_metadata_bias_warning(
+    *,
+    completeness: dict[str, Any],
+    metadata_dir: Path,
+    clean_rows: int,
+    all_rows: int,
+    representative_mode: bool,
+) -> None:
+    coverage = completeness["coverage"]
+    warnings = []
+    for label in ["country", "continent", "subcontinent", "collection_year", "host_standardized", "source_standardized", "sample_type_standardized", "organism_name"]:
+        if coverage.get(label, 0.0) < 50.0:
+            warnings.append(f"Low {label} coverage: {coverage.get(label, 0.0)}%")
+    if representative_mode and clean_rows < all_rows:
+        warnings.append(
+            f"Representative clean table selected {clean_rows} rows from {all_rows} all-assembly rows; use fetchm2_all_assemblies.csv for row-preserving assembly analyses."
+        )
+    if not warnings:
+        warnings.append("No major metadata completeness bias warning triggered by FetchM2 thresholds.")
+    (metadata_dir / "metadata_bias_warning.txt").write_text("\n".join(warnings) + "\n", encoding="utf-8")
+
+
+def write_pipeline_manifest(
+    path: Path,
+    *,
+    input_file: str | Path,
+    filters_used: dict[str, Any],
+    total_input_rows: int,
+    total_filtered_rows: int,
+    total_clean_rows: int,
+    total_all_assembly_rows: int,
+    downloaded_count: int = 0,
+    failed_download_count: int = 0,
+    sequence_selected_count: int = 0,
+) -> dict[str, Any]:
+    manifest = {
+        "fetchm2_version": __version__,
+        "run_timestamp": datetime.now(timezone.utc).isoformat(),
+        "input_file": str(input_file),
+        "filters_used": filters_used,
+        "total_input_rows": total_input_rows,
+        "total_filtered_rows": total_filtered_rows,
+        "total_clean_rows": total_clean_rows,
+        "total_all_assembly_rows": total_all_assembly_rows,
+        "sequence_selected_count": sequence_selected_count,
+        "downloaded_count": downloaded_count,
+        "failed_download_count": failed_download_count,
+    }
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return manifest
+
+
+def update_pipeline_manifest_downloads(
+    path: Path,
+    *,
+    sequence_selected_count: int,
+    downloaded_count: int,
+    failed_download_count: int,
+    sequence_filters_used: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    manifest = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    filters_used = manifest.get("filters_used", {})
+    if sequence_filters_used is not None:
+        filters_used = {**filters_used, "sequence_filters": sequence_filters_used}
+    manifest.update(
+        {
+            "run_timestamp": manifest.get("run_timestamp") or datetime.now(timezone.utc).isoformat(),
+            "filters_used": filters_used,
+            "sequence_selected_count": sequence_selected_count,
+            "downloaded_count": downloaded_count,
+            "failed_download_count": failed_download_count,
+        }
+    )
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return manifest
 
 
 class MetadataCache:
@@ -498,8 +701,10 @@ def run_metadata(
     audit_dir = outdir / "audit"
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
-    df = read_table(input_path)
-    df = filter_quality(df, ani, checkm)
+    input_df = read_table(input_path)
+    total_input_rows = len(input_df)
+    df = filter_quality(input_df, ani, checkm)
+    total_filtered_rows = len(df)
     rows = df.fillna("").to_dict(orient="records")
     rows = enrich_rows_with_biosample(
         rows,
@@ -511,24 +716,56 @@ def run_metadata(
         offline=offline,
     )
     standardized = standardize_rows(rows)
-    all_df = pd.DataFrame(standardized)
+    all_df = ensure_pipeline_contract_columns(pd.DataFrame(standardized))
     all_df.to_csv(metadata_dir / "fetchm2_all_assemblies.csv", index=False)
     all_df.to_csv(metadata_dir / "fetchm2_all_assemblies.tsv", sep="\t", index=False)
     clean_df = all_df if keep_assembly_duplicates else select_representative_assemblies(all_df)
+    clean_df = ensure_pipeline_contract_columns(clean_df)
     clean_path = metadata_dir / "fetchm2_clean.csv"
     clean_df.to_csv(clean_path, index=False)
     clean_df.to_csv(metadata_dir / "fetchm2_clean.tsv", sep="\t", index=False)
+    write_compatibility_outputs(clean_df, metadata_dir)
+    write_sample_map(clean_df, metadata_dir / "sample_map.csv")
+    completeness = write_metadata_completeness(clean_df, metadata_dir)
+    write_metadata_bias_warning(
+        completeness=completeness,
+        metadata_dir=metadata_dir,
+        clean_rows=len(clean_df),
+        all_rows=len(all_df),
+        representative_mode=not keep_assembly_duplicates,
+    )
+    manifest_path = metadata_dir / "fetchm2_manifest.json"
+    manifest_filters = {
+        "ani": ani,
+        "checkm": checkm,
+        "offline": offline,
+        "keep_assembly_duplicates": keep_assembly_duplicates,
+    }
+    write_pipeline_manifest(
+        manifest_path,
+        input_file=input_path,
+        filters_used=manifest_filters,
+        total_input_rows=total_input_rows,
+        total_filtered_rows=total_filtered_rows,
+        total_clean_rows=len(clean_df),
+        total_all_assembly_rows=len(all_df),
+    )
     clean_rows = clean_df.fillna("").to_dict(orient="records")
     summary = write_audit_outputs(clean_rows, audit_dir)
     analysis_result = {}
     if analysis:
         analysis_result = generate_metadata_analysis(clean_df, outdir / "metadata_analysis")
     production_ready, hard_failures, warnings = production_gate(summary)
+    completeness_rows = completeness["rows"]
     report_lines = [
         "# FetchM2 Run Report",
         "",
+        "## Summary",
+        "",
         f"Input: {input_path}",
-        f"All assembly rows after filters: {len(all_df)}",
+        f"Input rows: {total_input_rows}",
+        f"Rows after quality filters: {total_filtered_rows}",
+        f"All assembly rows after standardization: {len(all_df)}",
         f"Rows processed: {summary['rows']}",
         f"Representative assembly mode: {'disabled; all assembly rows retained' if keep_assembly_duplicates else 'enabled; one row per Assembly Name, preferring GCF accessions'}",
         f"Unique Assembly Accession values: {summary.get('unique_assembly_accessions', 0)}",
@@ -536,9 +773,36 @@ def run_metadata(
         f"Unique BioSample accessions represented: {summary.get('unique_biosample_accessions', 0)}",
         "BioSample fetch unit: unique BioSample accession; clean output unit: assembly row.",
         f"Clean table: {clean_path}",
+        f"All-assembly table: {metadata_dir / 'fetchm2_all_assemblies.csv'}",
+        f"FetchM compatibility table: {metadata_dir / 'ncbi_clean.csv'}",
+        f"Sample map: {metadata_dir / 'sample_map.csv'}",
+        f"Manifest: {manifest_path}",
+        f"Metadata completeness: {metadata_dir / 'metadata_completeness.csv'}",
+        f"Bias warning file: {metadata_dir / 'metadata_bias_warning.txt'}",
         f"Metadata analysis: {outdir / 'metadata_analysis' if analysis else 'disabled'}",
         f"Production gate: {'PASS' if production_ready else 'FAIL'}",
+        "",
+        "## Metadata Completeness",
+        "",
+        "| Field | Column | Present rows | Total rows | Percent present |",
+        "| --- | --- | ---: | ---: | ---: |",
     ]
+    for item in completeness_rows:
+        report_lines.append(
+            f"| {item['field']} | `{item['column']}` | {item['present_rows']} | {item['total_rows']} | {item['percent_present']} |"
+        )
+    report_lines.extend(
+        [
+            "",
+            "## Downstream Compatibility",
+            "",
+            "- `fetchm2_clean.csv` is representative by `Assembly Name` unless `--keep-assembly-duplicates` is used.",
+            "- `fetchm2_all_assemblies.csv` preserves all standardized GCA/GCF rows.",
+            "- Assembly accession versions are preserved for matching downstream sequence and analysis outputs.",
+            "- `sample_map.csv` provides stable `sample_id`, `Assembly Accession`, `Assembly Name`, and expected `sequence_file` values.",
+            "- `ncbi_clean.csv` and `fetchm2_clean_compat.csv` are FetchM/PanR2-friendly aliases of the clean table.",
+        ]
+    )
     if hard_failures:
         report_lines.append(f"Hard failures: {', '.join(hard_failures)}")
     if warnings:
@@ -546,6 +810,7 @@ def run_metadata(
     (metadata_dir / "fetchm2_report.md").write_text("\n".join(report_lines) + "\n", encoding="utf-8")
     return {
         "clean_path": str(clean_path),
+        "manifest_path": str(manifest_path),
         "summary": summary,
         "production_ready": production_ready,
         "hard_failures": hard_failures,

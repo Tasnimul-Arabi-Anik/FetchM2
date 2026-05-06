@@ -31,6 +31,57 @@ def build_parent_url(accession: str) -> str:
     return f"{BASE_URL}/{prefix}/{core[:3]}/{core[3:6]}/{core[6:9]}/{core[9:]}"
 
 
+def biosample_value(row: dict[str, Any]) -> str:
+    for column in ["Assembly BioSample Accession", "BioSample", "BioSample Accession"]:
+        value = str(row.get(column) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def expected_directory_name(row: dict[str, Any]) -> str:
+    accession = str(row.get("Assembly Accession") or "").strip()
+    name = str(row.get("Assembly Name") or "").strip()
+    return f"{accession}_{normalize_assembly_name(name)}" if accession else ""
+
+
+def expected_sequence_file(row: dict[str, Any], *, keep_gz: bool = False) -> str:
+    directory = expected_directory_name(row)
+    if not directory:
+        return ""
+    suffix = ".fna.gz" if keep_gz else ".fna"
+    return f"{directory}_genomic{suffix}"
+
+
+def expected_ftp_path(row: dict[str, Any]) -> str:
+    accession = str(row.get("Assembly Accession") or "").strip()
+    directory = expected_directory_name(row)
+    if not accession or not directory or "_" not in accession:
+        return ""
+    return f"{build_parent_url(accession)}/{directory}/{directory}_genomic.fna.gz"
+
+
+def sequence_summary_row(
+    row: dict[str, Any],
+    *,
+    selected_for_download: bool,
+    download_status: str,
+    sequence_file: str = "",
+    failure_reason: str = "",
+    ftp_path: str = "",
+) -> dict[str, Any]:
+    return {
+        "Assembly Accession": str(row.get("Assembly Accession") or "").strip(),
+        "Assembly Name": str(row.get("Assembly Name") or "").strip(),
+        "BioSample": biosample_value(row),
+        "selected_for_download": bool(selected_for_download),
+        "download_status": download_status,
+        "sequence_file": sequence_file or expected_sequence_file(row),
+        "failure_reason": failure_reason,
+        "ftp_path": ftp_path or expected_ftp_path(row),
+    }
+
+
 class DirectoryCache:
     def __init__(self, path: Path) -> None:
         self.conn = sqlite3.connect(path, check_same_thread=False)
@@ -117,11 +168,23 @@ def select_rows(input_path: Path, filters: dict[str, Any], max_genomes: int | No
     return rows
 
 
-def download_one(row: dict[str, Any], outdir: Path, cache: DirectoryCache, retries: int, retry_delay: float, keep_gz: bool) -> tuple[str, str]:
+def download_one(
+    row: dict[str, Any],
+    outdir: Path,
+    cache: DirectoryCache,
+    retries: int,
+    retry_delay: float,
+    keep_gz: bool,
+) -> dict[str, Any]:
     accession = str(row.get("Assembly Accession") or "").strip()
     name = str(row.get("Assembly Name") or "").strip()
     if not accession:
-        return "", "missing accession"
+        return sequence_summary_row(
+            row,
+            selected_for_download=True,
+            download_status="failed",
+            failure_reason="missing accession",
+        )
     for attempt in range(1, retries + 1):
         try:
             directory = resolve_assembly_directory(accession, name, cache)
@@ -129,9 +192,15 @@ def download_one(row: dict[str, Any], outdir: Path, cache: DirectoryCache, retri
             fna_name = f"{directory}_genomic.fna"
             gz_path = outdir / gz_name
             fna_path = outdir / fna_name
-            if fna_path.exists() or gz_path.exists():
-                return accession, "exists"
             url = f"{build_parent_url(accession)}/{directory}/{gz_name}"
+            if fna_path.exists() or gz_path.exists():
+                return sequence_summary_row(
+                    row,
+                    selected_for_download=True,
+                    download_status="exists",
+                    sequence_file=fna_name if fna_path.exists() else gz_name,
+                    ftp_path=url,
+                )
             with requests.get(url, stream=True, timeout=300) as response:
                 response.raise_for_status()
                 with gz_path.open("wb") as handle:
@@ -142,14 +211,25 @@ def download_one(row: dict[str, Any], outdir: Path, cache: DirectoryCache, retri
                 with gzip.open(gz_path, "rb") as source, fna_path.open("wb") as target:
                     shutil.copyfileobj(source, target)
                 gz_path.unlink()
-            return accession, "downloaded"
+            return sequence_summary_row(
+                row,
+                selected_for_download=True,
+                download_status="downloaded",
+                sequence_file=gz_name if keep_gz else fna_name,
+                ftp_path=url,
+            )
         except Exception as exc:
             if attempt >= retries:
-                return accession, f"failed: {exc}"
+                return sequence_summary_row(
+                    row,
+                    selected_for_download=True,
+                    download_status="failed",
+                    failure_reason=str(exc),
+                )
             import time
 
             time.sleep(retry_delay * attempt)
-    return accession, "failed"
+    return sequence_summary_row(row, selected_for_download=True, download_status="failed", failure_reason="failed")
 
 
 def run_sequence_downloads(
@@ -174,17 +254,20 @@ def run_sequence_downloads(
         (outdir / "failed_accessions.txt").write_text("\n".join(missing) + ("\n" if missing else ""), encoding="utf-8")
         pd.DataFrame(
             [
-                {
-                    "assembly_accession": accession,
-                    "status": "exists" if accession in existing else "missing",
-                    "mode": "check-only",
-                }
-                for accession in expected
+                sequence_summary_row(
+                    row,
+                    selected_for_download=True,
+                    download_status="exists" if str(row.get("Assembly Accession") or "").strip() in existing else "missing",
+                    failure_reason=""
+                    if str(row.get("Assembly Accession") or "").strip() in existing
+                    else "missing local sequence file",
+                )
+                for row in rows
             ]
         ).to_csv(outdir / "sequence_download_summary.csv", index=False)
         return {"selected": len(rows), "missing": len(missing), "downloaded": 0, "failed": len(missing)}
     cache = DirectoryCache(outdir / "fetchm2_sequence_cache.sqlite3")
-    results: list[tuple[str, str]] = []
+    results: list[dict[str, Any]] = []
     try:
         with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
             futures = [
@@ -195,15 +278,17 @@ def run_sequence_downloads(
                 results.append(future.result())
     finally:
         cache.close()
-    failed = [accession for accession, status in results if status.startswith("failed") or status == "missing accession"]
+    failed = [
+        str(result.get("Assembly Accession") or "").strip()
+        for result in results
+        if result.get("download_status") == "failed"
+    ]
     (outdir / "failed_accessions.txt").write_text("\n".join(failed) + ("\n" if failed else ""), encoding="utf-8")
     summary = {
         "selected": len(rows),
-        "downloaded": sum(1 for _, status in results if status == "downloaded"),
-        "existing": sum(1 for _, status in results if status == "exists"),
+        "downloaded": sum(1 for result in results if result.get("download_status") == "downloaded"),
+        "existing": sum(1 for result in results if result.get("download_status") == "exists"),
         "failed": len(failed),
     }
-    pd.DataFrame([{"assembly_accession": accession, "status": status} for accession, status in results]).to_csv(
-        outdir / "sequence_download_summary.csv", index=False
-    )
+    pd.DataFrame(results).to_csv(outdir / "sequence_download_summary.csv", index=False)
     return summary

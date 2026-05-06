@@ -36,12 +36,37 @@ def test_metadata_cli_offline(tmp_path: Path, monkeypatch) -> None:
     assert (outdir / "metadata_analysis" / "metadata_analysis_report.md").exists()
     assert (outdir / "metadata_analysis" / "tables" / "field_coverage_summary.csv").exists()
     assert (outdir / "metadata_analysis" / "tables" / "top_values_by_field.csv").exists()
+    assert (outdir / "metadata_output" / "sample_map.csv").exists()
+    assert (outdir / "metadata_output" / "metadata_completeness.csv").exists()
+    assert (outdir / "metadata_output" / "metadata_bias_warning.txt").exists()
+    assert (outdir / "metadata_output" / "fetchm2_manifest.json").exists()
+    assert (outdir / "metadata_output" / "ncbi_clean.csv").exists()
+    assert (outdir / "metadata_output" / "fetchm2_clean_compat.csv").exists()
     df = pd.read_csv(clean_path)
-    assert "Host_SD" in df.columns
-    assert "Host_Context_SD" in df.columns
-    assert "Isolation_Source_SD" in df.columns
-    assert "Environment_Medium_SD" in df.columns
+    for column in [
+        "Assembly Accession",
+        "Assembly Name",
+        "Assembly BioSample Accession",
+        "Organism Name",
+        "Geographic Location",
+        "Continent",
+        "Subcontinent",
+        "Collection Date",
+        "Collection_Year",
+        "Host",
+        "Host_SD",
+        "Host_Context_SD",
+        "Isolation_Source",
+        "Isolation_Source_SD",
+        "Sample_Type_SD",
+        "Environment_Medium_SD",
+    ]:
+        assert column in df.columns
     assert (df["Country"].fillna("") == "Hospital").sum() == 0
+    sample_map = pd.read_csv(outdir / "metadata_output" / "sample_map.csv")
+    assert list(sample_map.columns) == ["sample_id", "Assembly Accession", "Assembly Name", "sequence_file"]
+    assert sample_map["Assembly Accession"].astype(str).str.contains(r"\.\d+$", regex=True).all()
+    assert sample_map["sequence_file"].astype(str).str.endswith(".fna").all()
 
 
 def test_sequence_check_only_cli(tmp_path: Path, monkeypatch) -> None:
@@ -79,6 +104,20 @@ def test_sequence_check_only_cli(tmp_path: Path, monkeypatch) -> None:
     main()
     assert (seq_out / "failed_accessions.txt").exists()
     assert (seq_out / "sequence_download_summary.csv").exists()
+    summary = pd.read_csv(seq_out / "sequence_download_summary.csv")
+    assert list(summary.columns) == [
+        "Assembly Accession",
+        "Assembly Name",
+        "BioSample",
+        "selected_for_download",
+        "download_status",
+        "sequence_file",
+        "failure_reason",
+        "ftp_path",
+    ]
+    assert summary.loc[0, "selected_for_download"] in [True, "True"]
+    assert str(summary.loc[0, "Assembly Accession"]).startswith("G")
+    assert "." in str(summary.loc[0, "Assembly Accession"])
 
 
 def test_metadata_cli_selects_representative_assemblies_by_default(tmp_path: Path, monkeypatch) -> None:
@@ -107,6 +146,7 @@ def test_metadata_cli_selects_representative_assemblies_by_default(tmp_path: Pat
     assert int(summary_df.loc[0, "rows"]) == 100
     assert clean_df["Assembly Name"].nunique() == 100
     assert clean_df["Assembly Accession"].str.startswith("GCF_").all()
+    assert clean_df["Assembly Accession"].str.contains(r"\.\d+$", regex=True).all()
 
 
 def test_metadata_cli_can_keep_assembly_duplicates(tmp_path: Path, monkeypatch) -> None:

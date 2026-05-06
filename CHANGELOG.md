@@ -4,6 +4,28 @@ All notable FetchM2 release changes are recorded here.
 
 FetchM2 is a standalone CLI successor to FetchM. It packages expanded deterministic metadata standardization, metadata analysis, audit/validation reporting, and sequence-download filtering into a terminal workflow.
 
+## 0.1.7 - 2026-05-06
+
+### Added
+
+- Added a stable PanR2/PanResistome-compatible metadata contract for `fetchm2_clean.csv`.
+- Added guaranteed compatibility columns, including `Assembly BioSample Accession`, `Geographic Location`, `Continent`, `Subcontinent`, `Collection Date`, `Collection_Year`, `Host_SD`, `Isolation_Source`, `Isolation_Source_SD`, `Sample_Type_SD`, and `Environment_Medium_SD`.
+- Added `metadata_output/sample_map.csv` with `sample_id`, `Assembly Accession`, `Assembly Name`, and expected `sequence_file`.
+- Added `metadata_output/metadata_completeness.csv`.
+- Added `metadata_output/metadata_bias_warning.txt`.
+- Added `metadata_output/fetchm2_manifest.json`.
+- Added FetchM/PanR2 compatibility aliases:
+  - `metadata_output/ncbi_clean.csv`
+  - `metadata_output/fetchm2_clean_compat.csv`
+- Expanded `fetchm2_report.md` with summary, metadata completeness, output paths, and downstream compatibility notes.
+- Expanded `sequence_download_summary.csv` with stable matching columns: `Assembly Accession`, `Assembly Name`, `BioSample`, `selected_for_download`, `download_status`, `sequence_file`, `failure_reason`, and `ftp_path`.
+
+### Preserved
+
+- Assembly accession versions such as `GCF_000123456.1` remain unchanged.
+- `fetchm2_clean.csv` remains one representative row per `Assembly Name` by default, preferring `GCF_*`.
+- `fetchm2_all_assemblies.csv` remains the full standardized all-row table.
+
 ## 0.1.6 - 2026-05-06
 
 ### Changed

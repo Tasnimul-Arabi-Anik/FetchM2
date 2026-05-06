@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
 Validation date: 2026-05-06
-Current validation target: `fetchm2 0.1.6`
+Current validation target: `fetchm2 0.1.7`
 
 ## Source Baselines
 
@@ -361,4 +361,81 @@ Arctic Ocean sediment -> Country=Arctic Ocean, Continent=Marine, Subcontinent=Oc
 Boston Harbor Massachusetts, United States isolation source -> Country=United States by reviewed secondary recovery
 ground turkey / guinea pig / Norway rat / Aspergillus niger / Deschampsia antarctica are blocked as geography false positives
 Web-style BioSample alias columns are standardized without requiring FetchM Web
+```
+
+## Additional 0.1.7 Downstream Pipeline Contract Validation
+
+The 0.1.7 update hardens FetchM2 as a drop-in metadata producer for FetchM-style downstream pipelines, PanR2, and PanResistome.
+
+New stable metadata outputs:
+
+```text
+metadata_output/sample_map.csv
+metadata_output/metadata_completeness.csv
+metadata_output/metadata_bias_warning.txt
+metadata_output/fetchm2_manifest.json
+metadata_output/ncbi_clean.csv
+metadata_output/fetchm2_clean_compat.csv
+```
+
+Guaranteed `fetchm2_clean.csv` compatibility columns:
+
+```text
+Assembly Accession
+Assembly Name
+Assembly BioSample Accession
+Organism Name
+Geographic Location
+Continent
+Subcontinent
+Collection Date
+Collection_Year
+Host
+Host_SD
+Isolation_Source
+Isolation_Source_SD
+Sample_Type_SD
+Environment_Medium_SD
+```
+
+0.1.7 local validation:
+
+```text
+pytest: 18 passed
+python -m build: passed
+twine check dist/fetchm2-0.1.7*: passed
+fresh wheel install: passed
+fetchm2 --version from installed wheel: fetchm2 0.1.7
+examples/offline_metadata.tsv metadata run: production gate PASS
+metadata_output/sample_map.csv: generated
+metadata_output/metadata_completeness.csv: generated
+metadata_output/metadata_bias_warning.txt: generated
+metadata_output/fetchm2_manifest.json: generated with fetchm2_version=0.1.7
+metadata_output/ncbi_clean.csv: generated
+metadata_output/fetchm2_clean_compat.csv: generated
+sequence check-only: generated stable sequence_download_summary.csv columns
+installed-wheel smoke: no missing PanR2/PanResistome contract columns
+```
+
+Stable sequence summary columns:
+
+```text
+Assembly Accession
+Assembly Name
+BioSample
+selected_for_download
+download_status
+sequence_file
+failure_reason
+ftp_path
+```
+
+Compatibility behavior retained:
+
+```text
+Assembly accession versions are preserved.
+fetchm2_clean.csv remains one representative row per Assembly Name by default.
+GCF_* is preferred over paired GCA_* accessions.
+fetchm2_all_assemblies.csv preserves all standardized assembly rows.
+BioSample metadata is fetched once per unique BioSample and applied back to assembly rows.
 ```

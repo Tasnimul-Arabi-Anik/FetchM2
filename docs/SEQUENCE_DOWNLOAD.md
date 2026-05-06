@@ -45,3 +45,23 @@ Use `--check-only` to compare expected accessions against an output directory wi
 ```bash
 fetchm2 seq --input fetchm2_clean.csv --outdir sequence --check-only
 ```
+
+## Stable Summary Output
+
+FetchM2 always writes:
+
+- `sequence_download_summary.csv`
+- `failed_accessions.txt`
+
+`sequence_download_summary.csv` includes these stable downstream matching columns:
+
+- `Assembly Accession`
+- `Assembly Name`
+- `BioSample`
+- `selected_for_download`
+- `download_status`
+- `sequence_file`
+- `failure_reason`
+- `ftp_path`
+
+The `sequence_file` value matches the expected FASTA basename used by FetchM2. Assembly accession versions are preserved so downstream tools can match ABRicate, MLST, MobileElementFinder, IntegronFinder, DefenseFinder, PanR2, and PanResistome outputs by `Assembly Accession` or by `sample_id` from `metadata_output/sample_map.csv`.

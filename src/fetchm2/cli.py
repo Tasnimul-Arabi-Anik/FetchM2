@@ -7,7 +7,7 @@ from pathlib import Path
 from . import __version__
 from .analysis import generate_metadata_analysis
 from .audit import production_gate, write_audit_outputs
-from .metadata import run_metadata
+from .metadata import run_metadata, update_pipeline_manifest_downloads
 from .sequence import run_sequence_downloads
 
 
@@ -222,6 +222,13 @@ def run_all_command(args: argparse.Namespace) -> None:
             workers=args.download_workers,
             max_genomes=args.max_genomes,
             keep_gz=args.keep_gz,
+        )
+        update_pipeline_manifest_downloads(
+            Path(result["manifest_path"]),
+            sequence_selected_count=int(sequence_summary.get("selected", 0)),
+            downloaded_count=int(sequence_summary.get("downloaded", 0)),
+            failed_download_count=int(sequence_summary.get("failed", 0)),
+            sequence_filters_used={**filter_dict(args), "max_genomes": args.max_genomes},
         )
         print(f"Sequence summary: {sequence_summary}")
     print_final_summary(

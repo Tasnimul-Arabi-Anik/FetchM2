@@ -69,10 +69,10 @@ Verify:
 fetchm2 --version
 ```
 
-To install the validated `0.1.6` GitHub release tag before the PyPI package is updated:
+To install the validated `0.1.7` GitHub release tag before the PyPI package is updated:
 
 ```bash
-pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.6"
+pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.7"
 ```
 
 ### Option 2: conda / mamba environment
@@ -357,6 +357,14 @@ FetchM2 writes:
 
 - `metadata_output/fetchm2_clean.csv`
 - `metadata_output/fetchm2_clean.tsv`
+- `metadata_output/fetchm2_clean_compat.csv`
+- `metadata_output/ncbi_clean.csv`
+- `metadata_output/fetchm2_all_assemblies.csv`
+- `metadata_output/fetchm2_all_assemblies.tsv`
+- `metadata_output/sample_map.csv`
+- `metadata_output/metadata_completeness.csv`
+- `metadata_output/metadata_bias_warning.txt`
+- `metadata_output/fetchm2_manifest.json`
 - `metadata_output/fetchm2_report.md`
 - `audit/standardization_summary.csv`
 - `audit/top_host_review_needed.csv`
@@ -374,8 +382,14 @@ results/
 ├── metadata_output/
 │   ├── fetchm2_clean.csv
 │   ├── fetchm2_clean.tsv
+│   ├── fetchm2_clean_compat.csv
+│   ├── ncbi_clean.csv
 │   ├── fetchm2_all_assemblies.csv
 │   ├── fetchm2_all_assemblies.tsv
+│   ├── sample_map.csv
+│   ├── metadata_completeness.csv
+│   ├── metadata_bias_warning.txt
+│   ├── fetchm2_manifest.json
 │   └── fetchm2_report.md
 ├── metadata_analysis/
 │   ├── metadata_analysis_report.md
@@ -411,6 +425,33 @@ If you intentionally want paired GCA/GCF rows retained in `fetchm2_clean.csv`, u
 ```bash
 fetchm2 metadata --input ncbi_dataset.tsv --outdir results --keep-assembly-duplicates
 ```
+
+For PanR2/PanResistome-style downstream pipelines, FetchM2 always includes these compatibility columns in `fetchm2_clean.csv`, even when values are blank:
+
+- `Assembly Accession`
+- `Assembly Name`
+- `Assembly BioSample Accession`
+- `Organism Name`
+- `Geographic Location`
+- `Continent`
+- `Subcontinent`
+- `Collection Date`
+- `Collection_Year`
+- `Host`
+- `Host_SD`
+- `Isolation_Source`
+- `Isolation_Source_SD`
+- `Sample_Type_SD`
+- `Environment_Medium_SD`
+
+`sample_map.csv` provides stable sequence-analysis matching columns:
+
+- `sample_id`
+- `Assembly Accession`
+- `Assembly Name`
+- `sequence_file`
+
+Assembly accession versions such as `GCF_000123456.1` are preserved.
 
 ## Standardized Metadata Fields
 
@@ -535,6 +576,17 @@ Outputs:
 - `failed_accessions.txt`
 - `sequence_download_summary.csv`
 - `fetchm2_sequence_cache.sqlite3`
+
+`sequence_download_summary.csv` includes stable downstream matching columns:
+
+- `Assembly Accession`
+- `Assembly Name`
+- `BioSample`
+- `selected_for_download`
+- `download_status`
+- `sequence_file`
+- `failure_reason`
+- `ftp_path`
 
 ## Test Dataset
 
