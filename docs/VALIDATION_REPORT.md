@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
-Validation date: 2026-05-05
-Current validation target: `fetchm2 0.1.5`
+Validation date: 2026-05-06
+Current validation target: `fetchm2 0.1.6`
 
 ## Source Baselines
 
@@ -28,7 +28,7 @@ FetchM2 packages these deterministic rule resources:
 | `approved_broad_categories.csv` | 50 |
 | `geography_reviewed_rules.csv` | 16 |
 | `collection_date_reviewed_rules.csv` | 0 reviewed rows |
-| `country_mapping.json` | 202 countries/regions |
+| `country_mapping.json` | 238 countries/territories/marine regions |
 
 ## Commands Validated
 
@@ -47,7 +47,7 @@ fetchm2 seq --input /tmp/fetchm2_smoke/metadata_output/fetchm2_clean.csv --outdi
 Regression tests:
 
 ```text
-11 passed
+18 passed
 ```
 
 Package build for `0.1.2`:
@@ -312,4 +312,53 @@ The BioSample fallback cache was also hardened:
 ```text
 Direct incomplete BioSample XML no longer overwrites recovered fallback metadata in cache.
 Recovered esummary XML is cached and reused on subsequent calls without refetching.
+```
+
+## Additional 0.1.6 Geography and Alias Parity Validation
+
+The 0.1.6 update improves standalone parity with the active FetchM Web deterministic metadata standardization layer while keeping FetchM2 CLI-only.
+
+Geography parity changes:
+
+```text
+country_mapping.json entries: 202 -> 238
+Territory labels added: Puerto Rico, Greenland, French Guiana, Guadeloupe, New Caledonia, French Polynesia, Bermuda, Cayman Islands, Macau, and related entries
+Marine region labels added: Arctic Ocean, Atlantic Ocean, Pacific Ocean, Indian Ocean, Southern Ocean, Mediterranean Sea, Baltic Sea, North Sea, Tasman Sea, and related entries
+Geography traceability columns added: Country_Source, Country_Confidence, Country_Evidence, Geo_Recovery_Status
+```
+
+Web-style standalone input aliases added:
+
+```text
+BioSample Host / BioSample Specific Host / BioSample NAT Host / BioSample LAB Host
+BioSample Collection Timestamp / BioSample Collection Date Remark / BioSample Isolation Date
+BioSample Geographic Location Country AND OR SEA / BioSample Geographic Location Country AND OR SEA Region
+BioSample Isolation Source / BioSample Isolation Site / BioSample Source Material ID
+Environment (Broad Scale) / Environment (Local Scale)
+BioSample Host Disease / BioSample Host Health State
+```
+
+0.1.6 local validation:
+
+```text
+pytest: 18 passed
+python -m build: passed
+twine check dist/fetchm2-0.1.6*: passed
+fresh wheel install: passed
+fetchm2 --version from installed wheel: fetchm2 0.1.6
+examples/offline_metadata.tsv metadata run: production gate PASS
+validate command: production gate PASS
+sequence check-only: selected 1 Bangladesh row and completed without network download
+```
+
+0.1.6 regression coverage includes:
+
+```text
+Puerto Rico -> Continent=North America, Subcontinent=Caribbean
+Greenland -> Continent=North America, Subcontinent=Northern America
+Mediterranean Sea -> Continent=Marine, Subcontinent=Sea
+Arctic Ocean sediment -> Country=Arctic Ocean, Continent=Marine, Subcontinent=Ocean
+Boston Harbor Massachusetts, United States isolation source -> Country=United States by reviewed secondary recovery
+ground turkey / guinea pig / Norway rat / Aspergillus niger / Deschampsia antarctica are blocked as geography false positives
+Web-style BioSample alias columns are standardized without requiring FetchM Web
 ```

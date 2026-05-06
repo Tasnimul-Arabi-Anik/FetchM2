@@ -4,6 +4,26 @@ All notable FetchM2 release changes are recorded here.
 
 FetchM2 is a standalone CLI successor to FetchM. It packages expanded deterministic metadata standardization, metadata analysis, audit/validation reporting, and sequence-download filtering into a terminal workflow.
 
+## 0.1.6 - 2026-05-06
+
+### Changed
+
+- Expanded packaged `country_mapping.json` from `202` entries to `238` entries for parity with the active FetchM production geography mapping.
+- Added territory, historical-region, and marine-region continent/subcontinent labels, including `Puerto Rico`, `Greenland`, `Arctic Ocean`, `Pacific Ocean`, `Mediterranean Sea`, `North Sea`, and related regions.
+- Added deterministic secondary geography recovery from source/environment text with false-positive guards for `ground turkey`, `Guinea pig`, `Norway rat`, `Aspergillus niger`, and similar biological/product phrases.
+- Added geography traceability fields:
+  - `Country_Source`
+  - `Country_Confidence`
+  - `Country_Evidence`
+  - `Geo_Recovery_Status`
+- Expanded standalone offline/input-table alias support for Web-style BioSample columns such as `BioSample Host`, `BioSample Collection Timestamp`, `BioSample Geographic Location Country AND OR SEA`, `Environment (Broad Scale)`, and host health/disease aliases.
+- Restructured the README to follow the original FetchM-style documentation flow while documenting FetchM2-specific standardized fields, audits, and sequence filters.
+
+### Validation
+
+- `pytest`: `18 passed`
+- Added regression coverage for marine/territory geography mapping, secondary geography recovery, country false-positive blocking, and Web-style BioSample alias columns.
+
 ## 0.1.5 - 2026-05-06
 
 ### Changed

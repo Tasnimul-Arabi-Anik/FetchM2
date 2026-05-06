@@ -42,6 +42,10 @@ STANDARDIZED_COLUMNS = [
     "Country",
     "Continent",
     "Subcontinent",
+    "Country_Source",
+    "Country_Confidence",
+    "Country_Evidence",
+    "Geo_Recovery_Status",
     "Collection_Year",
     "FetchM2_Standardization_Notes",
 ]
@@ -49,6 +53,12 @@ STANDARDIZED_COLUMNS = [
 HOST_ALIASES = [
     "Host",
     "host",
+    "BioSample Host",
+    "BioSample Specific Host",
+    "BioSample NAT Host",
+    "BioSample LAB Host",
+    "BioSample Host Common Name",
+    "BioSample Common Name",
     "host scientific name",
     "host_scientific_name",
     "specific host",
@@ -60,6 +70,10 @@ SOURCE_FIELDS = {
         "sample type",
         "specimen",
         "sample material",
+        "BioSample Sample Type",
+        "BioSample Source Type",
+        "BioSample Package",
+        "BioSample ENV Package",
     ],
     "Isolation Source": [
         "Isolation Source",
@@ -67,6 +81,14 @@ SOURCE_FIELDS = {
         "isolation source",
         "source",
         "source type",
+        "BioSample Isolation Source",
+        "BioSample Isolation Site",
+        "BioSample Source Name",
+        "BioSample Source Type",
+        "BioSample Source Material ID",
+        "BioSample Source MAT ID",
+        "BioSample ENV Material",
+        "BioSample Environment Material",
     ],
     "Isolation Site": [
         "Isolation Site",
@@ -74,32 +96,61 @@ SOURCE_FIELDS = {
         "isolation site",
         "anatomical site",
         "body site",
+        "BioSample Isolation Site",
+        "BioSample Body Site",
+        "BioSample Organism Part",
+        "BioSample Tissue",
+        "BioSample Host Tissue Sampled",
     ],
     "Environment Medium": [
         "Environment Medium",
         "env_medium",
         "environmental medium",
         "environment",
+        "BioSample ENV Medium",
+        "BioSample Environment Material",
+        "BioSample ENV Material",
+        "BioSample Material",
     ],
     "Environment Broad Scale": [
         "Environment Broad Scale",
+        "Environment (Broad Scale)",
         "env_broad_scale",
         "broad-scale environmental context",
+        "BioSample ENV Broad Scale",
+        "BioSample Environment Biome",
+        "BioSample ENV Biome",
+        "BioSample Biome",
+        "BioSample Metagenome Source",
+        "BioSample Environment",
     ],
     "Environment Local Scale": [
         "Environment Local Scale",
+        "Environment (Local Scale)",
         "env_local_scale",
         "local-scale environmental context",
+        "BioSample ENV Local Scale",
+        "BioSample Environment Feature",
+        "BioSample ENV Feature",
+        "BioSample Feature",
+        "BioSample Coll Site GEO Feat",
     ],
     "Host Disease": [
         "Host Disease",
         "host disease",
         "disease",
+        "BioSample Host Disease",
+        "BioSample Disease",
+        "BioSample Diseases",
+        "BioSample Study Disease",
+        "BioSample Ifsac Category",
     ],
     "Host Health State": [
         "Host Health State",
         "host health state",
         "health state",
+        "BioSample Host Health State",
+        "BioSample Health State",
     ],
 }
 
@@ -127,6 +178,65 @@ MISSING_TOKENS = {
 COUNTRY_FALSE_CONTEXT = re.compile(
     r"\b(hospital|clinic|outpatient|inpatient|ward|guinea pig|norway rat|ground turkey|aspergillus niger)\b",
     re.IGNORECASE,
+)
+COUNTRY_ALIASES = {
+    "usa": "United States",
+    "us": "United States",
+    "u s a": "United States",
+    "united states of america": "United States",
+    "uk": "United Kingdom",
+    "u k": "United Kingdom",
+    "england": "United Kingdom",
+    "republic of korea": "South Korea",
+}
+SECONDARY_GEO_DIRECT_COLUMNS = [
+    "BioSample ENV Local Scale",
+    "BioSample ENV Broad Scale",
+    "Environment Local Scale",
+    "Environment Broad Scale",
+    "env_local_scale",
+    "env_broad_scale",
+]
+SECONDARY_GEO_TEXT_COLUMNS = [
+    "BioSample Isolation Source",
+    "Isolation Source",
+    "BioSample Source Name",
+    "BioSample Description",
+    "BioSample Title",
+]
+SECONDARY_GEO_FALSE_POSITIVE_PATTERNS = [
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in [
+        r"\bprotocols?:",
+        r"\bground\s+turkey\b",
+        r"\bgound\s+turkey\b",
+        r"\bturkey\s+(?:embryo|embryos|meat|product|farm|flock|litter|cecum|caecum|cloaca|feces|faeces|gut|intestine|poult|salad|sinus|trachea|tracheae)\b",
+        r"\bturkey\s+(?:pork|beef|hot\s+dog|frank|filet|goulash|steak|patty)\b",
+        r"\bguinea[-\s]?pig\b",
+        r"\bguinea\s+fowl\b",
+        r"\bnorway\s+rat\b",
+        r"\b(?:a\.|aspergillus)\s+niger\b",
+        r"\bcordylus\s+niger\b",
+        r"\blizard\s*\([^)]*\bniger\b[^)]*\)",
+        r"\bniger\s+(?:mycelia|strain|isolate|culture|spore|hyphae)\b",
+        r"\bdeschampsia\s+antarctica\b",
+    ]
+]
+SECONDARY_GEO_LOCATION_CUE_PATTERN = re.compile(
+    r"\b(?:in|from|at|near|within|collected\s+(?:in|from|at)|isolated\s+(?:in|from|at)|"
+    r"sampled\s+(?:in|from|at)|obtained\s+from|originating\s+from|region[, ]+|province[, ]+|site[, ]+)",
+    re.IGNORECASE,
+)
+SECONDARY_GEO_DIRECTIONAL_PREFIXES = (
+    "north",
+    "south",
+    "east",
+    "west",
+    "northern",
+    "southern",
+    "eastern",
+    "western",
+    "central",
 )
 DATE_YEAR_RE = re.compile(r"(19|20)\d{2}")
 FOOD_PRODUCT_RE = re.compile(
@@ -544,6 +654,16 @@ def standardize_collection_year(row: dict[str, Any]) -> str:
             "sample_collection_date",
             "date_of_collection",
             "isolation_date",
+            "BioSample Collection Date",
+            "BioSample Collection Timestamp",
+            "BioSample Colection Date",
+            "BioSample Collection Date Remark",
+            "BioSample Sampling Event Date Time Start",
+            "BioSample Date Host Collection",
+            "BioSample Isolation Date",
+            "BioSample Harvest Date",
+            "BioSample Specimen Collection Date",
+            "BioSample DNA Isolation Date",
             "Assembly Release Date",
         ],
     )
@@ -554,43 +674,189 @@ def standardize_collection_year(row: dict[str, Any]) -> str:
     return match.group(0) if match else ""
 
 
-def standardize_geography(row: dict[str, Any]) -> dict[str, str]:
-    rules = load_rules()
-    raw = first_present(row, ["Geographic Location", "geo_loc_name", "geographic location", "Country", "country"])
-    if not raw or is_missing(raw) or COUNTRY_FALSE_CONTEXT.search(raw):
-        return {"Country": "", "Continent": "", "Subcontinent": ""}
-    key = normalize_lookup(raw)
-    if key in rules.geography_rules:
-        country = rules.geography_rules[key]
-    else:
-        candidate = raw.split(":", 1)[0].strip()
-        normalized_candidate = normalize_lookup(candidate)
-        country = ""
-        for known_country in rules.country_mapping:
-            if normalize_lookup(known_country) == normalized_candidate:
-                country = known_country
-                break
-        if not country:
-            for alias, canonical in {
-                "usa": "United States",
-                "us": "United States",
-                "u s a": "United States",
-                "united states of america": "United States",
-                "uk": "United Kingdom",
-                "u k": "United Kingdom",
-                "england": "United Kingdom",
-                "south korea": "South Korea",
-                "republic of korea": "South Korea",
-            }.items():
-                if normalized_candidate == alias:
-                    country = canonical
-                    break
-    metadata = rules.country_mapping.get(country, {})
+def geography_result(
+    country: str = "",
+    *,
+    source: str = "",
+    confidence: str = "",
+    evidence: str = "",
+    status: str = "",
+) -> dict[str, str]:
+    metadata = load_rules().country_mapping.get(country, {})
     return {
         "Country": country,
         "Continent": metadata.get("Continent", ""),
         "Subcontinent": metadata.get("Subcontinent", ""),
+        "Country_Source": source,
+        "Country_Confidence": confidence,
+        "Country_Evidence": evidence[:180] if evidence else "",
+        "Geo_Recovery_Status": status,
     }
+
+
+def reviewed_geography_country(value: Any) -> str:
+    key = normalize_lookup(value)
+    if not key:
+        return ""
+    return load_rules().geography_rules.get(key, "")
+
+
+def normalize_country_candidate(value: Any) -> str:
+    rules = load_rules()
+    raw = "" if value is None else str(value).strip()
+    if not raw or is_missing(raw):
+        return ""
+    reviewed = reviewed_geography_country(raw)
+    if reviewed in rules.country_mapping:
+        return reviewed
+    candidate = raw.split(":", 1)[0].strip()
+    normalized_candidate = normalize_lookup(candidate)
+    for known_country in rules.country_mapping:
+        if normalize_lookup(known_country) == normalized_candidate:
+            return known_country
+    return COUNTRY_ALIASES.get(normalized_candidate, "")
+
+
+def secondary_geo_text_blocked(text: str) -> bool:
+    return any(pattern.search(text) for pattern in SECONDARY_GEO_FALSE_POSITIVE_PATTERNS)
+
+
+def secondary_geo_country_context_blocked(country: str, text: str, match: re.Match[str]) -> bool:
+    after = text[match.end() : match.end() + 80].lower()
+    before = text[max(0, match.start() - 80) : match.start()].lower()
+    phrase = text[max(0, match.start() - 80) : match.end() + 80].lower()
+
+    if re.match(r"\s+style\b", after):
+        return True
+    if country == "Turkey" and re.search(
+        r"\bturkey\s+(?:embryo|embryos|meat|product|farm|flock|litter|cecum|caecum|cloaca|"
+        r"feces|faeces|gut|intestine|pork|beef|hot\s+dog|frank|filet|goulash|patty|poult|"
+        r"salad|sinus|steak|trachea|tracheae)\b",
+        phrase,
+    ):
+        return True
+    if country == "Turkey" and re.search(r"\b(?:ground|gound)\s+turkey\b", phrase):
+        return True
+    if country == "Guinea" and re.search(r"\bguinea[-\s]?(?:pig|fowl)\b", phrase):
+        return True
+    if country == "Norway" and re.search(r"\bnorway\s+rat\b", phrase):
+        return True
+    if country == "Niger" and re.search(
+        r"\b(?:a\.|aspergillus|cordylus)\s+niger\b|\bniger\s+(?:mycelia|strain|isolate|culture|spore|hyphae)\b",
+        phrase,
+    ):
+        return True
+    if country == "Niger" and re.search(r"\blizard\s*\([^)]*\bniger\b[^)]*\)", phrase):
+        return True
+    if country == "Antarctica" and re.search(r"\bdeschampsia\s+antarctica\b", phrase):
+        return True
+    if country in {"Turkey", "Guinea", "Norway", "Niger"} and re.search(r"\b(?:host|animal)\s*$", before):
+        return True
+    return False
+
+
+def recover_country_from_secondary_text(text: Any) -> tuple[str, str, str] | None:
+    value = "" if text is None else str(text).strip()
+    if not value or is_missing(value) or secondary_geo_text_blocked(value):
+        return None
+
+    reviewed = reviewed_geography_country(value)
+    if reviewed:
+        return reviewed, value, "reviewed_secondary"
+
+    direct = normalize_country_candidate(value)
+    if direct:
+        if direct in {"Turkey", "Guinea", "Norway", "Niger"} and not SECONDARY_GEO_LOCATION_CUE_PATTERN.search(value):
+            return None
+        return direct, value, "rule_secondary"
+
+    compact = re.sub(r"\s+", " ", value)
+    for country in sorted(load_rules().country_mapping, key=len, reverse=True):
+        if len(country) < 4:
+            continue
+        pattern = re.compile(rf"(?<![A-Za-z]){re.escape(country)}(?![A-Za-z])", re.IGNORECASE)
+        match = pattern.search(compact)
+        if not match:
+            continue
+        before = compact[max(0, match.start() - 50) : match.start()]
+        after = compact[match.end() : match.end() + 50]
+        phrase = compact[max(0, match.start() - 60) : match.end() + 60].strip()
+        prefix = before.strip().split()[-1].lower() if before.strip().split() else ""
+        if secondary_geo_country_context_blocked(str(country), compact, match):
+            continue
+        if country in {"Turkey", "Guinea", "Norway", "Niger"} and not SECONDARY_GEO_LOCATION_CUE_PATTERN.search(before):
+            continue
+        if prefix in SECONDARY_GEO_DIRECTIONAL_PREFIXES:
+            return str(country), phrase, "rule_secondary"
+        if SECONDARY_GEO_LOCATION_CUE_PATTERN.search(before):
+            return str(country), phrase, "rule_secondary"
+        if re.match(r"^\s*(?:[,;:.]|$)", after) and re.search(r"[,;:]\s*$", before):
+            return str(country), phrase, "rule_secondary"
+    return None
+
+
+def recover_secondary_geography(row: dict[str, Any]) -> tuple[str, str, str, str] | None:
+    for column in SECONDARY_GEO_DIRECT_COLUMNS:
+        value = first_present(row, [column])
+        candidate = normalize_country_candidate(value)
+        if candidate:
+            return candidate, column, value[:180], "rule_secondary"
+    for column in SECONDARY_GEO_TEXT_COLUMNS:
+        value = first_present(row, [column])
+        recovered = recover_country_from_secondary_text(value)
+        if recovered:
+            country, evidence, status = recovered
+            return country, column, evidence[:180], status
+    return None
+
+
+def standardize_geography(row: dict[str, Any]) -> dict[str, str]:
+    raw_country = first_present(row, ["Country", "country", "BioSample Country"])
+    if raw_country and not is_missing(raw_country):
+        country = normalize_country_candidate(raw_country)
+        if country:
+            return geography_result(country, source="Country", confidence="trusted", evidence=raw_country, status="trusted_primary")
+
+    raw_geo = first_present(
+        row,
+        [
+            "Geographic Location",
+            "geo_loc_name",
+            "geographic location",
+            "BioSample GEO LOC Name",
+            "BioSample Geographic Location Country AND OR SEA",
+            "BioSample Geographic Location Country AND OR SEA Region",
+        ],
+    )
+    if raw_geo and not is_missing(raw_geo):
+        country = normalize_country_candidate(raw_geo)
+        if country:
+            return geography_result(
+                country,
+                source="Geographic Location",
+                confidence="trusted",
+                evidence=raw_geo,
+                status="trusted_primary",
+            )
+        if not COUNTRY_FALSE_CONTEXT.search(raw_geo):
+            recovered = recover_country_from_secondary_text(raw_geo)
+            if recovered:
+                country, evidence, status = recovered
+                return geography_result(
+                    country,
+                    source="Geographic Location",
+                    confidence="high" if status != "trusted_primary" else "trusted",
+                    evidence=evidence,
+                    status=status,
+                )
+
+    recovered = recover_secondary_geography(row)
+    if recovered:
+        country, source, evidence, status = recovered
+        return geography_result(country, source=source, confidence="high", evidence=evidence, status=status)
+
+    status = "missing" if not raw_geo or is_missing(raw_geo) else "unknown"
+    return geography_result(status=status)
 
 
 def standardize_row(row: dict[str, Any]) -> dict[str, Any]:

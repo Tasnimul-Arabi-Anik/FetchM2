@@ -12,7 +12,7 @@ The packaged files live in `src/fetchm2/data/`:
 - `approved_broad_categories.csv`: allowed broad-category vocabulary.
 - `geography_reviewed_rules.csv`: reviewed special geography cases.
 - `collection_date_reviewed_rules.csv`: reviewed date phrases that need explicit year recovery.
-- `country_mapping.json`: country, continent, and subcontinent mapping extracted from public FetchM.
+- `country_mapping.json`: country, territory, historical-region, and marine-region mapping to continent/subcontinent labels.
 
 ## Output Fields
 
@@ -22,7 +22,9 @@ FetchM2 writes the original input columns plus standardized columns including:
 - `Sample_Type_SD`, `Isolation_Source_SD`, `Isolation_Site_SD`.
 - `Environment_Medium_SD`, `Environment_Broad_Scale_SD`, `Environment_Local_Scale_SD`.
 - `Host_Disease_SD`, `Host_Health_State_SD`.
-- `Country`, `Continent`, `Subcontinent`, `Collection_Year`.
+- `Country`, `Continent`, `Subcontinent`, `Country_Source`, `Country_Confidence`, `Country_Evidence`, `Geo_Recovery_Status`, `Collection_Year`.
+
+Geography standardization supports primary `Country`/`Geographic Location` fields, reviewed geography rules, selected secondary text recovery from source/environment fields, and explicit false-positive guards for biological/product phrases such as `ground turkey`, `Guinea pig`, `Norway rat`, and `Aspergillus niger`.
 
 ## Production Gate
 

@@ -11,6 +11,10 @@
     "Continent": "Africa",
     "Subcontinent": "Northern Africa"
   },
+  "American Samoa": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
+  },
   "Andorra": {
     "Continent": "Europe",
     "Subcontinent": "Southern Europe"
@@ -19,9 +23,17 @@
     "Continent": "Africa",
     "Subcontinent": "Middle Africa"
   },
+  "Antarctica": {
+    "Continent": "Antarctica",
+    "Subcontinent": "Antarctica"
+  },
   "Antigua and Barbuda": {
     "Continent": "North America",
     "Subcontinent": "Caribbean"
+  },
+  "Arctic Ocean": {
+    "Continent": "Marine",
+    "Subcontinent": "Ocean"
   },
   "Argentina": {
     "Continent": "South America",
@@ -30,6 +42,10 @@
   "Armenia": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
+  },
+  "Atlantic Ocean": {
+    "Continent": "Marine",
+    "Subcontinent": "Ocean"
   },
   "Australia": {
     "Continent": "Oceania",
@@ -50,6 +66,10 @@
   "Bahrain": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
+  },
+  "Baltic Sea": {
+    "Continent": "Marine",
+    "Subcontinent": "Sea"
   },
   "Bangladesh": {
     "Continent": "Asia",
@@ -74,6 +94,10 @@
   "Benin": {
     "Continent": "Africa",
     "Subcontinent": "Western Africa"
+  },
+  "Bermuda": {
+    "Continent": "North America",
+    "Subcontinent": "Northern America"
   },
   "Bhutan": {
     "Continent": "Asia",
@@ -127,6 +151,10 @@
     "Continent": "North America",
     "Subcontinent": "Northern America"
   },
+  "Cayman Islands": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
   "Central African Republic": {
     "Continent": "Africa",
     "Subcontinent": "Middle Africa"
@@ -142,6 +170,10 @@
   "China": {
     "Continent": "Asia",
     "Subcontinent": "Eastern Asia"
+  },
+  "Christmas Island": {
+    "Continent": "Oceania",
+    "Subcontinent": "Australia and New Zealand"
   },
   "Colombia": {
     "Continent": "South America",
@@ -164,6 +196,10 @@
     "Subcontinent": "Southern Europe"
   },
   "Cuba": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Curacao": {
     "Continent": "North America",
     "Subcontinent": "Caribbean"
   },
@@ -231,6 +267,10 @@
     "Continent": "Africa",
     "Subcontinent": "Eastern Africa"
   },
+  "Faroe Islands": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
   "Fiji": {
     "Continent": "Oceania",
     "Subcontinent": "Melanesia"
@@ -242,6 +282,14 @@
   "France": {
     "Continent": "Europe",
     "Subcontinent": "Western Europe"
+  },
+  "French Guiana": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
+  "French Polynesia": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
   },
   "Gabon": {
     "Continent": "Africa",
@@ -267,7 +315,15 @@
     "Continent": "Europe",
     "Subcontinent": "Southern Europe"
   },
+  "Greenland": {
+    "Continent": "North America",
+    "Subcontinent": "Northern America"
+  },
   "Grenada": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
+  "Guadeloupe": {
     "Continent": "North America",
     "Subcontinent": "Caribbean"
   },
@@ -315,6 +371,10 @@
     "Continent": "Asia",
     "Subcontinent": "Southern Asia"
   },
+  "Indian Ocean": {
+    "Continent": "Marine",
+    "Subcontinent": "Ocean"
+  },
   "Indonesia": {
     "Continent": "Asia",
     "Subcontinent": "South-Eastern Asia"
@@ -351,6 +411,10 @@
     "Continent": "Asia",
     "Subcontinent": "Eastern Asia"
   },
+  "Jersey": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
+  },
   "Jordan": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
@@ -366,6 +430,10 @@
   "Kiribati": {
     "Continent": "Oceania",
     "Subcontinent": "Micronesia"
+  },
+  "Kosovo": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
   },
   "Kuwait": {
     "Continent": "Asia",
@@ -403,6 +471,10 @@
     "Continent": "Europe",
     "Subcontinent": "Western Europe"
   },
+  "Line Islands": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
+  },
   "Lithuania": {
     "Continent": "Europe",
     "Subcontinent": "Northern Europe"
@@ -410,6 +482,10 @@
   "Luxembourg": {
     "Continent": "Europe",
     "Subcontinent": "Western Europe"
+  },
+  "Macau": {
+    "Continent": "Asia",
+    "Subcontinent": "Eastern Asia"
   },
   "Madagascar": {
     "Continent": "Africa",
@@ -439,6 +515,10 @@
     "Continent": "Oceania",
     "Subcontinent": "Micronesia"
   },
+  "Martinique": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
   "Mauritania": {
     "Continent": "Africa",
     "Subcontinent": "Western Africa"
@@ -450,6 +530,10 @@
   "Mayotte": {
     "Continent": "Africa",
     "Subcontinent": "Eastern Africa"
+  },
+  "Mediterranean Sea": {
+    "Continent": "Marine",
+    "Subcontinent": "Sea"
   },
   "Mexico": {
     "Continent": "North America",
@@ -475,6 +559,10 @@
     "Continent": "Europe",
     "Subcontinent": "Southern Europe"
   },
+  "Montserrat": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
   "Morocco": {
     "Continent": "Africa",
     "Subcontinent": "Northern Africa"
@@ -485,7 +573,7 @@
   },
   "Myanmar": {
     "Continent": "Asia",
-    "Subcontinent": "South-Eastern Asia"
+    "Subcontinent": "South-eastern Asia"
   },
   "Namibia": {
     "Continent": "Africa",
@@ -502,6 +590,10 @@
   "Netherlands": {
     "Continent": "Europe",
     "Subcontinent": "Western Europe"
+  },
+  "New Caledonia": {
+    "Continent": "Oceania",
+    "Subcontinent": "Melanesia"
   },
   "New Zealand": {
     "Continent": "Oceania",
@@ -527,9 +619,17 @@
     "Continent": "Europe",
     "Subcontinent": "Southern Europe"
   },
+  "North Sea": {
+    "Continent": "Marine",
+    "Subcontinent": "Sea"
+  },
   "Northern Asia": {
     "Continent": "Asia",
     "Subcontinent": "Northern Asia"
+  },
+  "Northern Mariana Islands": {
+    "Continent": "Oceania",
+    "Subcontinent": "Micronesia"
   },
   "Norway": {
     "Continent": "Europe",
@@ -538,6 +638,10 @@
   "Oman": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
+  },
+  "Pacific Ocean": {
+    "Continent": "Marine",
+    "Subcontinent": "Ocean"
   },
   "Pakistan": {
     "Continent": "Asia",
@@ -550,6 +654,10 @@
   "Palestine": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
+  },
+  "Palmyra Atoll": {
+    "Continent": "Oceania",
+    "Subcontinent": "Polynesia"
   },
   "Panama": {
     "Continent": "North America",
@@ -579,6 +687,10 @@
     "Continent": "Europe",
     "Subcontinent": "Southern Europe"
   },
+  "Puerto Rico": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
   "Qatar": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
@@ -586,6 +698,10 @@
   "Republic of the Congo": {
     "Continent": "Africa",
     "Subcontinent": "Middle Africa"
+  },
+  "Reunion": {
+    "Continent": "Africa",
+    "Subcontinent": "Eastern Africa"
   },
   "Romania": {
     "Continent": "Europe",
@@ -647,6 +763,10 @@
     "Continent": "Asia",
     "Subcontinent": "South-Eastern Asia"
   },
+  "Sint Maarten": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
   "Slovakia": {
     "Continent": "Europe",
     "Subcontinent": "Eastern Europe"
@@ -667,6 +787,10 @@
     "Continent": "Africa",
     "Subcontinent": "Southern Africa"
   },
+  "South Georgia and the South Sandwich Islands": {
+    "Continent": "South America",
+    "Subcontinent": "South America"
+  },
   "South Korea": {
     "Continent": "Asia",
     "Subcontinent": "Eastern Asia"
@@ -674,6 +798,10 @@
   "South Sudan": {
     "Continent": "Africa",
     "Subcontinent": "Eastern Africa"
+  },
+  "Southern Ocean": {
+    "Continent": "Marine",
+    "Subcontinent": "Ocean"
   },
   "Spain": {
     "Continent": "Europe",
@@ -690,6 +818,10 @@
   "Suriname": {
     "Continent": "South America",
     "Subcontinent": "South America"
+  },
+  "Svalbard": {
+    "Continent": "Europe",
+    "Subcontinent": "Northern Europe"
   },
   "Sweden": {
     "Continent": "Europe",
@@ -715,13 +847,17 @@
     "Continent": "Africa",
     "Subcontinent": "Eastern Africa"
   },
+  "Tasman Sea": {
+    "Continent": "Marine",
+    "Subcontinent": "Sea"
+  },
   "Thailand": {
     "Continent": "Asia",
     "Subcontinent": "South-Eastern Asia"
   },
   "Timor-Leste": {
     "Continent": "Asia",
-    "Subcontinent": "South-Eastern Asia"
+    "Subcontinent": "South-eastern Asia"
   },
   "Togo": {
     "Continent": "Africa",
@@ -795,9 +931,17 @@
     "Continent": "Asia",
     "Subcontinent": "South-Eastern Asia"
   },
+  "Virgin Islands": {
+    "Continent": "North America",
+    "Subcontinent": "Caribbean"
+  },
   "Yemen": {
     "Continent": "Asia",
     "Subcontinent": "Western Asia"
+  },
+  "Yugoslavia": {
+    "Continent": "Europe",
+    "Subcontinent": "Southern Europe"
   },
   "Zambia": {
     "Continent": "Africa",

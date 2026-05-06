@@ -1,8 +1,10 @@
 # FetchM2
 
-FetchM2 is a comprehensive standalone command-line toolkit for bacterial genome metadata analysis, metadata standardization, audit reporting, and optional genome sequence download.
+## Overview
 
-FetchM2 is designed as the updated successor to the original FetchM standalone tool. It keeps the same practical command-line workflow, but adds many more standardized metadata fields, richer filtering, packaged curation rules, audit outputs, and reproducible test data.
+FetchM2 is a comprehensive standalone command-line toolkit for bacterial genome metadata retrieval, deterministic metadata standardization, metadata analysis, audit/validation reporting, and optional genome sequence download from NCBI Genome Datasets exports.
+
+FetchM2 is designed as the updated successor to the original FetchM standalone tool. It keeps the practical FetchM command-line workflow, but adds expanded host taxonomy fields, source/sample/environment standardization, geography and collection-year recovery, production-readiness audits, richer sequence-download filters, and reproducible test data.
 
 Recommended one-command workflow:
 
@@ -10,16 +12,42 @@ Recommended one-command workflow:
 fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```
 
-## Key Features
+The tool is intended primarily for bacterial genome datasets. It can process other NCBI Genome Datasets TSV/CSV exports, but metadata conventions outside bacterial datasets may be less consistent.
+
+## Workflow
+
+FetchM2 starts from an NCBI Genome Datasets TSV/CSV, retrieves linked BioSample metadata when requested, standardizes metadata fields with packaged deterministic rules, generates analysis/audit outputs, and optionally downloads FASTA genome sequences.
+
+Typical flow:
+
+```text
+NCBI ncbi_dataset.tsv/csv
+        |
+        v
+BioSample metadata retrieval or offline metadata parsing
+        |
+        v
+Deterministic standardization
+        |
+        v
+Clean metadata + analysis tables/figures + audit reports
+        |
+        v
+Optional filtered sequence download
+```
+
+## Features
 
 - Standalone command-line tool installable with `pip` or a conda environment.
 - Reads NCBI Genome Datasets TSV/CSV exports.
 - Optionally fetches linked BioSample metadata from NCBI with retry, cache, and fallback lookup support.
 - Supports offline analysis when metadata columns are already present.
-- Applies packaged deterministic standardization rules.
-- Writes clean CSV and TSV metadata outputs.
+- Applies packaged deterministic standardization rules for host, source, sample, environment, geography, collection year, disease, and health state.
+- Adds `Host_SD`, `Host_TaxID`, host lineage/rank fields, `Host_Context_SD`, standardized sample/source/environment fields, `Country`, `Continent`, `Subcontinent`, and geography traceability fields.
+- Labels 238 country/territory/marine-region entries, including common territories and ocean/sea regions.
+- Writes representative clean CSV/TSV outputs plus full all-assembly outputs.
 - Generates metadata analysis tables and figures automatically.
-- Produces audit summaries and review queues.
+- Produces audit summaries, production-readiness gates, leakage checks, and review queues.
 - Downloads genome FASTA files from NCBI.
 - Supports flexible sequence-download filtering by standardized metadata.
 - Includes `test.tsv`, matching the public FetchM-style test dataset layout.
@@ -32,7 +60,7 @@ fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```bash
 python -m venv fetchm2-env
 source fetchm2-env/bin/activate
-pip install fetchm2==0.1.5
+pip install fetchm2==0.1.6
 ```
 
 Verify:
@@ -70,7 +98,51 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
-## Quick Start
+## NCBI API Key
+
+FetchM2 can run without an NCBI API key, but larger BioSample retrieval jobs are more reliable with one.
+
+Create an NCBI API key from your My NCBI account, then either pass it directly:
+
+```bash
+fetchm2 metadata --input ncbi_dataset.tsv --outdir results --api-key YOUR_NCBI_API_KEY
+```
+
+Or use environment variables:
+
+```bash
+export NCBI_API_KEY=YOUR_NCBI_API_KEY
+export NCBI_EMAIL=you@example.com
+fetchm2 metadata --input ncbi_dataset.tsv --outdir results
+```
+
+Recommended request pacing:
+
+- without an API key: use `--workers 3 --sleep 0.4` for larger jobs
+- with an API key: `--workers 6 --sleep 0.15` is usually reasonable
+
+FetchM2 keeps a persistent SQLite BioSample cache in `metadata_output/fetchm2_biosample_cache.sqlite3`, so repeated runs do not refetch BioSamples that were already resolved.
+
+Do not put API keys in scripts, notebooks, README files, Git commits, or issue reports.
+
+## Usage
+
+### Recommended All-In-One Workflow
+
+```bash
+fetchm2 run --input ncbi_dataset.tsv --outdir results --download
+```
+
+This command:
+
+1. reads the NCBI genome export
+2. filters rows if `--ani` and/or `--checkm` are provided
+3. retrieves linked BioSample metadata unless `--offline` is used
+4. standardizes metadata fields
+5. writes clean tables, analysis outputs, and audit reports
+6. downloads FASTA files when `--download` is provided
+
+### Quick Start
 
 Run the bundled standalone smoke test:
 
@@ -398,7 +470,13 @@ FetchM2 standardizes:
 - `Country`
 - `Continent`
 - `Subcontinent`
+- `Country_Source`
+- `Country_Confidence`
+- `Country_Evidence`
+- `Geo_Recovery_Status`
 - `Collection_Year`
+
+The packaged region mapping covers countries, selected territories, historical labels, and marine regions such as `Arctic Ocean`, `Pacific Ocean`, `Mediterranean Sea`, and `North Sea`.
 
 It also blocks common false positives such as:
 
@@ -486,17 +564,6 @@ FetchM2 ships deterministic rules in `src/fetchm2/data/`:
 - `country_mapping.json`
 
 These rules let the standalone tool produce richer standardized fields without needing a web database.
-
-## API Keys
-
-For NCBI, use environment variables:
-
-```bash
-export NCBI_API_KEY=YOUR_NCBI_API_KEY
-export NCBI_EMAIL=you@example.com
-```
-
-Do not put API keys in scripts, notebooks, README files, Git commits, or issue reports.
 
 ## Validation
 
