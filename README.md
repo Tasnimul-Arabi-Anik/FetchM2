@@ -60,13 +60,19 @@ Optional filtered sequence download
 ```bash
 python -m venv fetchm2-env
 source fetchm2-env/bin/activate
-pip install fetchm2==0.1.6
+pip install fetchm2
 ```
 
 Verify:
 
 ```bash
 fetchm2 --version
+```
+
+To install the validated `0.1.6` GitHub release tag before the PyPI package is updated:
+
+```bash
+pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.6"
 ```
 
 ### Option 2: conda / mamba environment
