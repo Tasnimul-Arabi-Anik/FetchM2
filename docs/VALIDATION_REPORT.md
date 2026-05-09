@@ -506,3 +506,15 @@ Invalid/future Collection_Year rows: 0
 Unapproved broad-category rows: 0
 Sequence-readiness issue rows: 0
 ```
+
+PyPI post-release validation:
+
+```text
+PyPI version: fetchm2 0.1.7
+Fresh environment: /tmp/fetchm2_pypi_017_env
+Install command: python -m pip install fetchm2==0.1.7
+Installed CLI version: fetchm2 0.1.7
+Offline metadata smoke: production gate PASS
+Validate command smoke: production gate PASS
+Sequence check-only smoke: selected 1 Bangladesh row and completed without sequence download
+```
