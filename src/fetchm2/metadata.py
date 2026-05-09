@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import csv
 import json
 import sqlite3
+import subprocess
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -26,6 +28,33 @@ NCBI_TIMEOUT = 60
 DEFAULT_FETCH_RETRIES = 4
 DEFAULT_RETRY_BACKOFF = 1.5
 FALLBACK_CACHE_XML_KEY = "_FetchM2_Cache_XML"
+DATASETS_BINARY = "datasets"
+
+NCBI_DATASET_COLUMNS = [
+    "Assembly Accession",
+    "Assembly Name",
+    "Organism Name",
+    "Assembly Level",
+    "Assembly Status",
+    "Assembly Release Date",
+    "ANI Check status",
+    "Annotation Name",
+    "Assembly BioProject Accession",
+    "Assembly BioSample Accession",
+    "Organism Infraspecific Names Strain",
+    "Assembly Stats Total Sequence Length",
+    "Assembly Stats Total Ungapped Length",
+    "Assembly Stats GC Percent",
+    "Assembly Stats Number of Contigs",
+    "Assembly Stats Number of Scaffolds",
+    "Assembly Stats Contig N50",
+    "Assembly Stats Scaffold N50",
+    "Annotation Count Gene Total",
+    "Annotation Count Gene Protein-coding",
+    "Annotation Count Gene Pseudogene",
+    "CheckM completeness",
+    "CheckM contamination",
+]
 
 ATTRIBUTE_KEY_MAP = {
     "isolation_source": "Isolation Source",
@@ -154,6 +183,177 @@ def read_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
         return pd.read_csv(path)
     return pd.read_csv(path, sep="\t")
+
+
+def nested_get(payload: dict[str, Any], *keys: str) -> Any:
+    value: Any = payload
+    for key in keys:
+        if not isinstance(value, dict):
+            return None
+        value = value.get(key)
+        if value is None:
+            return None
+    return value
+
+
+def biosample_attribute(biosample: dict[str, Any], attribute_name: str) -> str:
+    attributes = biosample.get("attributes", [])
+    if isinstance(attributes, list):
+        for attribute in attributes:
+            if isinstance(attribute, dict) and attribute.get("name") == attribute_name:
+                value = attribute.get("value")
+                if value:
+                    return str(value)
+    direct_value = biosample.get(attribute_name)
+    return str(direct_value) if direct_value else ""
+
+
+def build_ncbi_dataset_row(payload: dict[str, Any]) -> dict[str, Any]:
+    biosample = nested_get(payload, "assembly_info", "biosample") or {}
+    assembly_info = payload.get("assembly_info", {}) or {}
+    assembly_stats = payload.get("assembly_stats", {}) or {}
+    organism = payload.get("organism", {}) or {}
+    annotation_stats = nested_get(payload, "annotation_info", "stats", "gene_counts") or {}
+    checkm_info = payload.get("checkm_info", {}) or {}
+    return {
+        "Assembly Accession": payload.get("accession") or payload.get("current_accession") or "",
+        "Assembly Name": assembly_info.get("assembly_name") or "",
+        "Organism Name": nested_get(payload, "organism", "organism_name")
+        or nested_get(biosample, "description", "organism", "organism_name")
+        or "",
+        "Assembly Level": assembly_info.get("assembly_level") or assembly_info.get("assembly_level_name") or "",
+        "Assembly Status": assembly_info.get("assembly_status") or "",
+        "Assembly Release Date": assembly_info.get("release_date") or payload.get("release_date") or "",
+        "ANI Check status": nested_get(payload, "average_nucleotide_identity", "taxonomy_check_status") or "",
+        "Annotation Name": nested_get(payload, "annotation_info", "pipeline") or "",
+        "Assembly BioProject Accession": assembly_info.get("bioproject_accession") or "",
+        "Assembly BioSample Accession": biosample.get("accession") or "",
+        "Organism Infraspecific Names Strain": nested_get(organism, "infraspecific_names", "strain")
+        or biosample_attribute(biosample, "strain"),
+        "Assembly Stats Total Sequence Length": assembly_stats.get("total_sequence_length") or "",
+        "Assembly Stats Total Ungapped Length": assembly_stats.get("total_ungapped_length") or "",
+        "Assembly Stats GC Percent": assembly_stats.get("gc_percent") or "",
+        "Assembly Stats Number of Contigs": assembly_stats.get("number_of_contigs") or "",
+        "Assembly Stats Number of Scaffolds": assembly_stats.get("number_of_scaffolds") or "",
+        "Assembly Stats Contig N50": assembly_stats.get("contig_n50") or "",
+        "Assembly Stats Scaffold N50": assembly_stats.get("scaffold_n50") or "",
+        "Annotation Count Gene Total": annotation_stats.get("total") or "",
+        "Annotation Count Gene Protein-coding": annotation_stats.get("protein_coding") or "",
+        "Annotation Count Gene Pseudogene": annotation_stats.get("pseudogene") or "",
+        "CheckM completeness": checkm_info.get("completeness") or "",
+        "CheckM contamination": checkm_info.get("contamination") or "",
+    }
+
+
+def normalize_assembly_source(value: str | None) -> str:
+    candidate = (value or "all").strip().lower()
+    return candidate if candidate in {"all", "refseq", "genbank"} else "all"
+
+
+def fetch_taxon_dataset(
+    taxon: str,
+    output_path: Path,
+    *,
+    assembly_source: str = "all",
+    max_assemblies: int | None = None,
+    tax_exact_match: bool = False,
+    datasets_binary: str = DATASETS_BINARY,
+) -> dict[str, Any]:
+    query = taxon.strip()
+    if not query:
+        raise ValueError("Taxon query is empty.")
+
+    command = [datasets_binary, "summary", "genome", "taxon", query, "--as-json-lines"]
+    source = normalize_assembly_source(assembly_source)
+    if source == "refseq":
+        command.extend(["--assembly-source", "RefSeq"])
+    elif source == "genbank":
+        command.extend(["--assembly-source", "GenBank"])
+    if max_assemblies is not None:
+        command.extend(["--limit", str(max(1, max_assemblies))])
+    if tax_exact_match:
+        command.append("--tax-exact-match")
+
+    result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=1800)
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "").strip()
+        raise RuntimeError(message or "NCBI Datasets CLI failed without an error message.")
+
+    rows: list[dict[str, Any]] = []
+    taxon_id: int | None = None
+    for raw_line in result.stdout.splitlines():
+        line = raw_line.strip()
+        if not line or not line.startswith("{"):
+            continue
+        payload = json.loads(line)
+        row = build_ncbi_dataset_row(payload)
+        if row["Assembly Accession"] and row["Organism Name"]:
+            rows.append(row)
+        if taxon_id is None:
+            discovered_taxon = nested_get(payload, "organism", "tax_id")
+            if isinstance(discovered_taxon, int):
+                taxon_id = discovered_taxon
+
+    if not rows:
+        raise RuntimeError(f"No assemblies were returned for taxon query: {query}")
+
+    rows.sort(key=lambda item: (str(item.get("Organism Name") or ""), str(item.get("Assembly Accession") or "")))
+    if max_assemblies is not None:
+        rows = rows[: max(0, max_assemblies)]
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=NCBI_DATASET_COLUMNS, delimiter="\t", extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows({column: row.get(column, "") for column in NCBI_DATASET_COLUMNS} for row in rows)
+    return {
+        "taxon_query": query,
+        "taxon_id": taxon_id,
+        "assembly_source": source,
+        "tax_exact_match": tax_exact_match,
+        "rows": len(rows),
+        "path": str(output_path),
+        "command": command,
+    }
+
+
+def resolve_metadata_input(
+    input_path: Path | None,
+    *,
+    taxon: str | None,
+    metadata_dir: Path,
+    offline: bool,
+    assembly_source: str,
+    max_assemblies: int | None,
+    tax_exact_match: bool,
+    datasets_binary: str,
+) -> tuple[Path, dict[str, Any] | None]:
+    if taxon:
+        generated_path = metadata_dir / "ncbi_dataset.tsv"
+        return generated_path, fetch_taxon_dataset(
+            taxon,
+            generated_path,
+            assembly_source=assembly_source,
+            max_assemblies=max_assemblies,
+            tax_exact_match=tax_exact_match,
+            datasets_binary=datasets_binary,
+        )
+    if input_path is None:
+        raise ValueError("Provide either --input PATH, --input TAXON_NAME, or --taxon TAXON_NAME.")
+    if input_path.exists():
+        return input_path, None
+    if offline:
+        raise FileNotFoundError(f"Input file not found in offline mode: {input_path}")
+    query = str(input_path).strip()
+    generated_path = metadata_dir / "ncbi_dataset.tsv"
+    return generated_path, fetch_taxon_dataset(
+        query,
+        generated_path,
+        assembly_source=assembly_source,
+        max_assemblies=max_assemblies,
+        tax_exact_match=tax_exact_match,
+        datasets_binary=datasets_binary,
+    )
 
 
 def filter_quality(df: pd.DataFrame, ani: list[str] | None, checkm: float | None) -> pd.DataFrame:
@@ -684,8 +884,13 @@ def enrich_rows_with_biosample(
 
 def run_metadata(
     *,
-    input_path: Path,
+    input_path: Path | None = None,
     outdir: Path,
+    taxon: str | None = None,
+    assembly_source: str = "all",
+    max_assemblies: int | None = None,
+    tax_exact_match: bool = False,
+    datasets_binary: str = DATASETS_BINARY,
     ani: list[str] | None = None,
     checkm: float | None = None,
     api_key: str | None = None,
@@ -701,7 +906,17 @@ def run_metadata(
     audit_dir = outdir / "audit"
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
-    input_df = read_table(input_path)
+    resolved_input_path, taxon_info = resolve_metadata_input(
+        input_path,
+        taxon=taxon,
+        metadata_dir=metadata_dir,
+        offline=offline,
+        assembly_source=assembly_source,
+        max_assemblies=max_assemblies,
+        tax_exact_match=tax_exact_match,
+        datasets_binary=datasets_binary,
+    )
+    input_df = read_table(resolved_input_path)
     total_input_rows = len(input_df)
     df = filter_quality(input_df, ani, checkm)
     total_filtered_rows = len(df)
@@ -740,10 +955,14 @@ def run_metadata(
         "checkm": checkm,
         "offline": offline,
         "keep_assembly_duplicates": keep_assembly_duplicates,
+        "taxon_query": taxon_info.get("taxon_query") if taxon_info else None,
+        "assembly_source": assembly_source,
+        "max_assemblies": max_assemblies,
+        "tax_exact_match": tax_exact_match,
     }
     write_pipeline_manifest(
         manifest_path,
-        input_file=input_path,
+        input_file=resolved_input_path,
         filters_used=manifest_filters,
         total_input_rows=total_input_rows,
         total_filtered_rows=total_filtered_rows,
@@ -762,7 +981,8 @@ def run_metadata(
         "",
         "## Summary",
         "",
-        f"Input: {input_path}",
+        f"Input: {resolved_input_path}",
+        f"Taxon query: {taxon_info['taxon_query']}" if taxon_info else "Taxon query: not used; file input mode",
         f"Input rows: {total_input_rows}",
         f"Rows after quality filters: {total_filtered_rows}",
         f"All assembly rows after standardization: {len(all_df)}",
@@ -816,4 +1036,5 @@ def run_metadata(
         "hard_failures": hard_failures,
         "warnings": warnings,
         "analysis": analysis_result,
+        "taxon_info": taxon_info,
     }

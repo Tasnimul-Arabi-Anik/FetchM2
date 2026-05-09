@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -8,6 +9,67 @@ import pandas as pd
 from fetchm2.cli import build_parser, main
 from fetchm2.metadata import MetadataCache, RequestRateLimiter, fetch_biosample_metadata
 from fetchm2.sequence import DirectoryCache
+
+
+def test_metadata_cli_taxon_query_generates_dataset(tmp_path: Path, monkeypatch) -> None:
+    class FakeCompletedProcess:
+        returncode = 0
+        stderr = ""
+
+        def __init__(self, stdout: str) -> None:
+            self.stdout = stdout
+
+    payload = {
+        "accession": "GCF_000001405.1",
+        "assembly_info": {
+            "assembly_name": "ASM140v1",
+            "assembly_level": "Complete Genome",
+            "assembly_status": "current",
+            "release_date": "2020-01-02",
+            "bioproject_accession": "PRJNA1",
+            "biosample": {"accession": "SAMN00000001", "attributes": [{"name": "strain", "value": "KPN1"}]},
+        },
+        "organism": {"organism_name": "Klebsiella pneumoniae", "tax_id": 573, "infraspecific_names": {"strain": "KPN1"}},
+        "assembly_stats": {"total_sequence_length": 5300000, "gc_percent": 57.1, "number_of_contigs": 1},
+        "average_nucleotide_identity": {"taxonomy_check_status": "OK"},
+        "annotation_info": {"pipeline": "PGAP", "stats": {"gene_counts": {"total": 5000, "protein_coding": 4800}}},
+        "checkm_info": {"completeness": 99.1, "contamination": 0.2},
+    }
+
+    def fake_run(command, check, capture_output, text, timeout):
+        assert command[:4] == ["datasets", "summary", "genome", "taxon"]
+        assert command[4] == "Klebsiella pneumoniae"
+        assert "--limit" in command
+        return FakeCompletedProcess(json.dumps(payload) + "\n")
+
+    monkeypatch.setattr("fetchm2.metadata.subprocess.run", fake_run)
+    outdir = tmp_path / "taxon"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "fetchm2",
+            "metadata",
+            "--taxon",
+            "Klebsiella pneumoniae",
+            "--outdir",
+            str(outdir),
+            "--offline",
+            "--no-analysis",
+            "--max-assemblies",
+            "5",
+        ],
+    )
+    main()
+    generated_input = outdir / "metadata_output" / "ncbi_dataset.tsv"
+    clean_path = outdir / "metadata_output" / "fetchm2_clean.csv"
+    manifest = json.loads((outdir / "metadata_output" / "fetchm2_manifest.json").read_text())
+    assert generated_input.exists()
+    assert clean_path.exists()
+    clean_df = pd.read_csv(clean_path)
+    assert clean_df.loc[0, "Assembly Accession"] == "GCF_000001405.1"
+    assert clean_df.loc[0, "Organism Name"] == "Klebsiella pneumoniae"
+    assert manifest["filters_used"]["taxon_query"] == "Klebsiella pneumoniae"
+    assert manifest["input_file"] == str(generated_input)
 
 
 def test_metadata_cli_offline(tmp_path: Path, monkeypatch) -> None:

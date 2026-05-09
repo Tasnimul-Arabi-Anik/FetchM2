@@ -12,16 +12,25 @@ Recommended one-command workflow:
 fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```
 
+FetchM2 can also start directly from a bacterial species or genus name:
+
+```bash
+fetchm2 run --taxon "Klebsiella pneumoniae" --outdir results --download
+```
+
 The tool is intended primarily for bacterial genome datasets. It can process other NCBI Genome Datasets TSV/CSV exports, but metadata conventions outside bacterial datasets may be less consistent.
 
 ## Workflow
 
-FetchM2 starts from an NCBI Genome Datasets TSV/CSV, retrieves linked BioSample metadata when requested, standardizes metadata fields with packaged deterministic rules, generates analysis/audit outputs, and optionally downloads FASTA genome sequences.
+FetchM2 starts from either an NCBI Genome Datasets TSV/CSV or a bacterial taxon name. For taxon-name runs, FetchM2 calls the NCBI Datasets CLI to build the assembly table first, then retrieves linked BioSample metadata when requested, standardizes metadata fields with packaged deterministic rules, generates analysis/audit outputs, and optionally downloads FASTA genome sequences.
 
 Typical flow:
 
 ```text
-NCBI ncbi_dataset.tsv/csv
+NCBI ncbi_dataset.tsv/csv OR bacterial species/genus name
+        |
+        v
+NCBI Datasets assembly table generation when a taxon name is used
         |
         v
 BioSample metadata retrieval or offline metadata parsing
@@ -40,6 +49,7 @@ Optional filtered sequence download
 
 - Standalone command-line tool installable with `pip` or a conda environment.
 - Reads NCBI Genome Datasets TSV/CSV exports.
+- Can query NCBI Datasets directly from a bacterial species or genus name, for example `--taxon "Klebsiella pneumoniae"`.
 - Optionally fetches linked BioSample metadata from NCBI with retry, cache, and fallback lookup support.
 - Supports offline analysis when metadata columns are already present.
 - Applies packaged deterministic standardization rules for host, source, sample, environment, geography, collection year, disease, and health state.
@@ -69,10 +79,10 @@ Verify:
 fetchm2 --version
 ```
 
-To install the validated `0.1.7` GitHub release tag before the PyPI package is updated:
+To install the validated `0.1.8` GitHub release tag before the PyPI package is updated:
 
 ```bash
-pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.7"
+pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.8"
 ```
 
 ### Option 2: conda / mamba environment
@@ -135,13 +145,27 @@ Do not put API keys in scripts, notebooks, README files, Git commits, or issue r
 
 ### Recommended All-In-One Workflow
 
+From an NCBI Datasets table:
+
 ```bash
 fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```
 
+Directly from a species or genus name:
+
+```bash
+fetchm2 run --taxon "Klebsiella pneumoniae" --outdir results --download
+```
+
+For convenience, a non-existing `--input` value is also treated as a taxon query when `--offline` is not used:
+
+```bash
+fetchm2 run --input "Klebsiella pneumoniae" --outdir results --download
+```
+
 This command:
 
-1. reads the NCBI genome export
+1. reads the NCBI genome export, or creates one from a taxon query
 2. filters rows if `--ani` and/or `--checkm` are provided
 3. retrieves linked BioSample metadata unless `--offline` is used
 4. standardizes metadata fields
@@ -186,17 +210,47 @@ fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 
 ## Typical Species/Genus Workflow
 
-1. Download an NCBI Genome Datasets TSV or CSV for your target species or genus.
-2. Run FetchM2:
+Option A, easiest: give FetchM2 the target name directly.
+
+```bash
+fetchm2 run --taxon "Klebsiella pneumoniae" --outdir results --download
+```
+
+Option B, reproducible table input: download an NCBI Genome Datasets TSV or CSV for your target species or genus, then run:
 
 ```bash
 fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 ```
 
-3. Review the main outputs:
+Taxon-name runs write the generated NCBI-style table to:
+
+```text
+results/metadata_output/ncbi_dataset.tsv
+```
+
+You can restrict the upstream assembly source:
+
+```bash
+fetchm2 run --taxon "Klebsiella pneumoniae" --assembly-source refseq --outdir results --download
+```
+
+You can cap very large genus queries at the upstream NCBI Datasets request:
+
+```bash
+fetchm2 run --taxon "Escherichia" --max-assemblies 500 --outdir escherichia_results
+```
+
+For exact species-level matching, add:
+
+```bash
+fetchm2 run --taxon "Klebsiella pneumoniae" --tax-exact-match --outdir results
+```
+
+Review the main outputs:
 
 - `results/metadata_output/fetchm2_clean.csv`
 - `results/metadata_output/fetchm2_all_assemblies.csv`
+- `results/metadata_output/ncbi_dataset.tsv` for taxon-name runs
 - `results/metadata_analysis/metadata_analysis_report.md`
 - `results/audit/standardization_audit.md`
 - `results/audit/production_readiness_gate.md`
@@ -205,7 +259,7 @@ fetchm2 run --input ncbi_dataset.tsv --outdir results --download
 For large NCBI retrieval jobs without an API key, use a conservative request delay:
 
 ```bash
-fetchm2 run --input ncbi_dataset.tsv --outdir results --download --workers 3 --sleep 0.4
+fetchm2 run --taxon "Klebsiella pneumoniae" --outdir results --download --workers 3 --sleep 0.4
 ```
 
 ## Metadata Retrieval Workflow
@@ -268,7 +322,11 @@ fetchm2 metadata \
 
 Common options:
 
-- `--input`: NCBI dataset TSV/CSV.
+- `--input`: NCBI dataset TSV/CSV. If the path does not exist and `--offline` is not used, FetchM2 treats the value as a taxon query.
+- `--taxon`: bacterial species or genus name to query directly with NCBI Datasets.
+- `--assembly-source`: upstream assembly source for taxon-name mode: `all`, `refseq`, or `genbank`.
+- `--max-assemblies`: optional cap for very large taxon-name queries before metadata retrieval.
+- `--tax-exact-match`: pass exact taxon matching to NCBI Datasets for species-level queries.
 - `--outdir`: output directory.
 - `--ani`: filter by ANI Check status, for example `OK`.
 - `--checkm`: minimum CheckM completeness.

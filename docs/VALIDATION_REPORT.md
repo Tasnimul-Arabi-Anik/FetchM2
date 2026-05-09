@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
 Validation date: 2026-05-06
-Current validation target: `fetchm2 0.1.7`
+Current validation target: `fetchm2 0.1.8`
 
 ## Source Baselines
 
@@ -517,4 +517,72 @@ Installed CLI version: fetchm2 0.1.7
 Offline metadata smoke: production gate PASS
 Validate command smoke: production gate PASS
 Sequence check-only smoke: selected 1 Bangladesh row and completed without sequence download
+```
+
+## Additional 0.1.8 Taxon-Name Input Validation
+
+Validation date: 2026-05-10
+
+The 0.1.8 update adds standalone species/genus input support while preserving the existing NCBI TSV/CSV input workflow.
+
+Implemented behavior:
+
+```text
+fetchm2 metadata --taxon "Klebsiella pneumoniae" --outdir results
+fetchm2 run --taxon "Klebsiella pneumoniae" --outdir results --download
+fetchm2 run --input "Klebsiella pneumoniae" --outdir results --download
+```
+
+Validation performed:
+
+```text
+python -m pytest: 19 passed
+python -m fetchm2 --help: passed
+python -m fetchm2 metadata --help: passed; shows --taxon, --assembly-source, --max-assemblies, --tax-exact-match
+Mocked NCBI Datasets taxon query test: passed
+Live NCBI Datasets taxon smoke: passed
+```
+
+Live smoke command:
+
+```bash
+python -m fetchm2 metadata --taxon "Klebsiella pneumoniae" --outdir /tmp/fetchm2_taxon_smoke --offline --no-analysis --max-assemblies 3
+```
+
+Live smoke result:
+
+```text
+Rows processed: 3
+Unique Assembly Accession values: 3
+BioSample-linked rows: 3
+Unique BioSamples represented: 3
+Production gate: PASS
+Generated taxon table: /tmp/fetchm2_taxon_smoke/metadata_output/ncbi_dataset.tsv
+Generated clean table: /tmp/fetchm2_taxon_smoke/metadata_output/fetchm2_clean.csv
+```
+
+The generated table preserved versioned accessions:
+
+```text
+GCF_000364385.3 Klebsiella pneumoniae
+GCF_000689275.1 Klebsiella pneumoniae
+GCF_000710075.1 Klebsiella pneumoniae
+```
+
+Important implementation note:
+
+```text
+--max-assemblies is passed upstream to NCBI Datasets as --limit, so large genus/species queries do not need to wait for all records before FetchM2 can cap the result set.
+```
+
+0.1.8 release-package validation:
+
+```text
+python -m build: passed
+python -m twine check dist/fetchm2-0.1.8*: passed
+fresh wheel install: passed
+fetchm2 --version from installed wheel: fetchm2 0.1.8
+python -m fetchm2 --help from installed wheel: passed
+offline metadata smoke from installed wheel: production gate PASS
+validate command smoke from installed wheel: production gate PASS
 ```

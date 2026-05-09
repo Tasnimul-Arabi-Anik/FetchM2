@@ -25,6 +25,23 @@ def add_filter_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--max-genomes", type=int, help="Maximum selected genomes for sequence download.")
 
 
+def add_metadata_source_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--input",
+        type=Path,
+        help="NCBI Datasets TSV/CSV input. If the path does not exist and --offline is not used, the value is treated as a taxon name.",
+    )
+    parser.add_argument("--taxon", help="Bacterial species/genus name to query directly with NCBI Datasets, e.g. 'Klebsiella pneumoniae'.")
+    parser.add_argument(
+        "--assembly-source",
+        choices=["all", "refseq", "genbank"],
+        default="all",
+        help="Assembly source to request when using --taxon or --input TAXON_NAME.",
+    )
+    parser.add_argument("--max-assemblies", type=int, help="Maximum assemblies to retain from a taxon query before metadata standardization.")
+    parser.add_argument("--tax-exact-match", action="store_true", help="Pass --tax-exact-match to NCBI Datasets for exact species-level taxon matching.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="fetchm2",
@@ -34,7 +51,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     metadata = subparsers.add_parser("metadata", help="Fetch/standardize metadata and write audit outputs.")
-    metadata.add_argument("--input", required=True, type=Path, help="NCBI Datasets TSV/CSV input.")
+    add_metadata_source_args(metadata)
     metadata.add_argument("--outdir", required=True, type=Path, help="Output directory.")
     metadata.add_argument("--ani", nargs="+", default=["all"], help="ANI Check status filter.")
     metadata.add_argument("--checkm", type=float, help="Minimum CheckM completeness.")
@@ -52,7 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
     metadata.set_defaults(func=run_metadata_command)
 
     run = subparsers.add_parser("run", help="Run metadata standardization and optionally download sequences.")
-    run.add_argument("--input", required=True, type=Path, help="NCBI Datasets TSV/CSV input.")
+    add_metadata_source_args(run)
     run.add_argument("--outdir", required=True, type=Path, help="Output directory.")
     run.add_argument("--ani", nargs="+", default=["all"], help="ANI Check status filter.")
     run.add_argument("--checkm", type=float, help="Minimum CheckM completeness.")
@@ -170,6 +187,10 @@ def run_metadata_command(args: argparse.Namespace) -> None:
     result = run_metadata(
         input_path=args.input,
         outdir=args.outdir,
+        taxon=args.taxon,
+        assembly_source=args.assembly_source,
+        max_assemblies=args.max_assemblies,
+        tax_exact_match=args.tax_exact_match,
         ani=args.ani,
         checkm=args.checkm,
         api_key=args.api_key,
@@ -197,6 +218,10 @@ def run_all_command(args: argparse.Namespace) -> None:
     result = run_metadata(
         input_path=args.input,
         outdir=args.outdir,
+        taxon=args.taxon,
+        assembly_source=args.assembly_source,
+        max_assemblies=args.max_assemblies,
+        tax_exact_match=args.tax_exact_match,
         ani=args.ani,
         checkm=args.checkm,
         api_key=args.api_key,
