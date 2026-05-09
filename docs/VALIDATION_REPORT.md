@@ -439,3 +439,30 @@ GCF_* is preferred over paired GCA_* accessions.
 fetchm2_all_assemblies.csv preserves all standardized assembly rows.
 BioSample metadata is fetched once per unique BioSample and applied back to assembly rows.
 ```
+
+## Additional 0.1.7 CI and Release-Hardening Validation
+
+Validation date: 2026-05-09
+
+Added GitHub Actions CI:
+
+```text
+Python versions: 3.10, 3.11, 3.12
+Install command: python -m pip install -e ".[dev]"
+Test command: pytest
+Build command: python -m build
+Distribution check: python -m twine check dist/*
+```
+
+Local release-hardening validation:
+
+```text
+python -m pip install -e ".[dev]": passed
+fetchm2 --version: fetchm2 0.1.7
+pytest: 18 passed
+python -m build: passed
+python -m twine check dist/*: passed
+offline metadata smoke: production gate PASS
+validate command smoke: production gate PASS
+sequence check-only smoke: selected 1 Bangladesh row and completed without sequence download
+```
