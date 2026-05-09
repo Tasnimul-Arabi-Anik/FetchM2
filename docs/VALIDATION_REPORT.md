@@ -466,3 +466,43 @@ offline metadata smoke: production gate PASS
 validate command smoke: production gate PASS
 sequence check-only smoke: selected 1 Bangladesh row and completed without sequence download
 ```
+
+Post-push GitHub Actions validation:
+
+```text
+Commit: f02d1dd Add CI release validation workflow
+Workflow run: 25607936518
+Status: success
+Python 3.10 test job: success
+Python 3.11 test job: success
+Python 3.12 test job: success
+Build package job: success
+```
+
+Live NCBI smoke validation:
+
+```text
+Command: fetchm2 metadata --input test.tsv --outdir /tmp/fetchm2_live_smoke --workers 3 --sleep 0.4
+Rows processed: 100
+BioSample-linked rows: 100
+Unique BioSamples represented: 100
+Metadata fetch failed rows: 0
+Production gate: PASS
+Hard failures: none
+Warnings: host_taxid_percent=47.0
+Host TaxID mapped: 47 / 100 (47.0%)
+Host review needed: 27
+Country present: 90 / 100 (90.0%)
+Collection year present: 98 / 100 (98.0%)
+Sample_Type_SD present: 33 / 100 (33.0%)
+Isolation_Source_SD present: 14 / 100 (14.0%)
+Isolation_Site_SD present: 23 / 100 (23.0%)
+Environment_Medium_SD present: 5 / 100 (5.0%)
+Invalid host-like Sample_Type_SD rows: 0
+Non-country values in Country rows: 0
+Country-continent mismatch rows: 0
+Country-subcontinent mismatch rows: 0
+Invalid/future Collection_Year rows: 0
+Unapproved broad-category rows: 0
+Sequence-readiness issue rows: 0
+```
