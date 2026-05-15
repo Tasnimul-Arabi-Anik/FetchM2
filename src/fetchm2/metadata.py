@@ -57,6 +57,10 @@ NCBI_DATASET_COLUMNS = [
     "CheckM contamination",
 ]
 
+
+def log_progress(message: str) -> None:
+    print(f"[fetchm2] {message}", flush=True)
+
 ATTRIBUTE_KEY_MAP = {
     "isolation_source": "Isolation Source",
     "isolation-source": "Isolation Source",
@@ -927,9 +931,12 @@ def run_metadata(
     )
     input_df = read_table(resolved_input_path)
     total_input_rows = len(input_df)
+    log_progress(f"Loaded {total_input_rows} metadata rows from {resolved_input_path}.")
     df = filter_quality(input_df, ani, checkm)
     total_filtered_rows = len(df)
+    log_progress(f"{total_filtered_rows} rows remain after quality filters.")
     rows = df.fillna("").to_dict(orient="records")
+    log_progress(f"Fetching or loading BioSample metadata for {len(rows)} rows.")
     rows = enrich_rows_with_biosample(
         rows,
         cache_path=metadata_dir / "fetchm2_biosample_cache.sqlite3",
@@ -939,7 +946,9 @@ def run_metadata(
         sleep=sleep,
         offline=offline,
     )
+    log_progress("BioSample metadata step complete. Standardizing metadata fields.")
     standardized = standardize_rows(rows)
+    log_progress(f"Standardization complete for {len(standardized)} rows. Writing output tables.")
     all_df = ensure_pipeline_contract_columns(pd.DataFrame(standardized))
     all_df.to_csv(metadata_dir / "fetchm2_all_assemblies.csv", index=False)
     all_df.to_csv(metadata_dir / "fetchm2_all_assemblies.tsv", sep="\t", index=False)
@@ -948,6 +957,7 @@ def run_metadata(
     clean_path = metadata_dir / "fetchm2_clean.csv"
     clean_df.to_csv(clean_path, index=False)
     clean_df.to_csv(metadata_dir / "fetchm2_clean.tsv", sep="\t", index=False)
+    log_progress(f"Clean metadata table written with {len(clean_df)} rows.")
     write_compatibility_outputs(clean_df, metadata_dir)
     write_sample_map(clean_df, metadata_dir / "sample_map.csv")
     completeness = write_metadata_completeness(clean_df, metadata_dir)
@@ -979,10 +989,13 @@ def run_metadata(
         total_all_assembly_rows=len(all_df),
     )
     clean_rows = clean_df.fillna("").to_dict(orient="records")
+    log_progress("Writing audit outputs.")
     summary = write_audit_outputs(clean_rows, audit_dir)
     analysis_result = {}
     if analysis:
+        log_progress("Generating metadata analysis tables and figures.")
         analysis_result = generate_metadata_analysis(clean_df, outdir / "metadata_analysis")
+        log_progress("Metadata analysis complete.")
     production_ready, hard_failures, warnings = production_gate(summary)
     completeness_rows = completeness["rows"]
     report_lines = [
@@ -1037,6 +1050,7 @@ def run_metadata(
     if warnings:
         report_lines.append(f"Warnings: {', '.join(warnings)}")
     (metadata_dir / "fetchm2_report.md").write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+    log_progress(f"Run complete. Report written to {metadata_dir / 'fetchm2_report.md'}.")
     return {
         "clean_path": str(clean_path),
         "manifest_path": str(manifest_path),
