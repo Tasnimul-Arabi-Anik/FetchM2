@@ -103,7 +103,19 @@ conda env create -f environment.yml
 conda activate fetchm2
 ```
 
-The conda environment includes `taxonkit`, which can improve host lineage enrichment for less common TaxIDs. FetchM2 still works without `taxonkit`; common host lineages are bundled.
+The conda environment includes the NCBI Datasets CLI (`datasets`), which is required for `--taxon` queries such as `fetchm2 metadata --taxon "Acinetobacter pitti" ...`. It also includes `taxonkit`, which can improve host lineage enrichment for less common TaxIDs. FetchM2 still works without `taxonkit`; common host lineages are bundled.
+
+If you created the environment before this dependency was added, update it with:
+
+```bash
+mamba install -c conda-forge -c bioconda ncbi-datasets-cli
+```
+
+Verify:
+
+```bash
+datasets --version
+```
 
 ### Option 3: developer install
 
@@ -323,7 +335,7 @@ fetchm2 metadata \
 Common options:
 
 - `--input`: NCBI dataset TSV/CSV. If the path does not exist and `--offline` is not used, FetchM2 treats the value as a taxon query.
-- `--taxon`: bacterial species or genus name to query directly with NCBI Datasets.
+- `--taxon`: bacterial species or genus name to query directly with NCBI Datasets. Requires the NCBI `datasets` CLI.
 - `--assembly-source`: upstream assembly source for taxon-name mode: `all`, `refseq`, or `genbank`.
 - `--max-assemblies`: optional cap for very large taxon-name queries before metadata retrieval.
 - `--tax-exact-match`: pass exact taxon matching to NCBI Datasets for species-level queries.

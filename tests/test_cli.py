@@ -5,9 +5,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from fetchm2.cli import build_parser, main
-from fetchm2.metadata import MetadataCache, RequestRateLimiter, fetch_biosample_metadata
+from fetchm2.metadata import MetadataCache, RequestRateLimiter, fetch_biosample_metadata, fetch_taxon_dataset
 from fetchm2.sequence import DirectoryCache
 
 
@@ -43,6 +44,7 @@ def test_metadata_cli_taxon_query_generates_dataset(tmp_path: Path, monkeypatch)
         return FakeCompletedProcess(json.dumps(payload) + "\n")
 
     monkeypatch.setattr("fetchm2.metadata.subprocess.run", fake_run)
+    monkeypatch.setattr("fetchm2.metadata.shutil.which", lambda binary: f"/usr/bin/{binary}")
     outdir = tmp_path / "taxon"
     monkeypatch.setattr(
         "sys.argv",
@@ -70,6 +72,13 @@ def test_metadata_cli_taxon_query_generates_dataset(tmp_path: Path, monkeypatch)
     assert clean_df.loc[0, "Organism Name"] == "Klebsiella pneumoniae"
     assert manifest["filters_used"]["taxon_query"] == "Klebsiella pneumoniae"
     assert manifest["input_file"] == str(generated_input)
+
+
+def test_fetch_taxon_dataset_reports_missing_datasets_cli(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr("fetchm2.metadata.shutil.which", lambda binary: None)
+
+    with pytest.raises(RuntimeError, match="NCBI Datasets CLI is required"):
+        fetch_taxon_dataset("Acinetobacter pitti", tmp_path / "ncbi_dataset.tsv")
 
 
 def test_metadata_cli_offline(tmp_path: Path, monkeypatch) -> None:

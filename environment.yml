@@ -13,6 +13,7 @@ dependencies:
   - seaborn>=0.13
   - plotly>=5.20
   - xmltodict>=0.13
+  - ncbi-datasets-cli
   - taxonkit
   - pip:
       - -e .

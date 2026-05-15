@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 import sqlite3
 import subprocess
 import threading
@@ -262,6 +263,14 @@ def fetch_taxon_dataset(
     query = taxon.strip()
     if not query:
         raise ValueError("Taxon query is empty.")
+
+    if shutil.which(datasets_binary) is None:
+        raise RuntimeError(
+            "NCBI Datasets CLI is required for --taxon queries, but the "
+            f"'{datasets_binary}' executable was not found on PATH. Install it with "
+            "`mamba install -c conda-forge -c bioconda ncbi-datasets-cli` or download "
+            "the NCBI datasets binary into your active environment."
+        )
 
     command = [datasets_binary, "summary", "genome", "taxon", query, "--as-json-lines"]
     source = normalize_assembly_source(assembly_source)
