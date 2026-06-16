@@ -2,6 +2,20 @@
 
 FetchM2 packages deterministic standardization rules from FetchM Web so the standalone tool can reproduce the major standardized metadata fields without requiring a web database.
 
+## FetchM WEB Production-Freeze Parity
+
+FetchM2 version `0.1.9` packages the deterministic standardization rules from the FetchM WEB 2026-06-16 production freeze. The source freeze was deployed from commit `aa84f2c` and recorded in deployment commit `66d38d1`.
+
+The synced standalone package includes:
+
+- finalized host synonyms and negative host rules;
+- finalized source/sample/environment controlled-category rules;
+- finalized approved broad-source vocabulary;
+- host context and microbial allowlist CSVs for rule provenance;
+- exact compatibility routing for reviewed release examples such as `waterlettuce`, `shorebird`, `Cuttloefish`, `ground turkey`, `clinical sample`, `wastewater surveillance`, `canal water`, `ear canal`, `carrier`, and `colonized`.
+
+FetchM2 remains a standalone CLI and does not embed FetchM WEB's database, Global Insights service, or static webapp artifacts. Static WEB figure files are not packaged; FetchM2 generates its own metadata analysis tables and figures in `metadata_analysis/figures/` for each run.
+
 ## Rule Sources
 
 The packaged files live in `src/fetchm2/data/`:

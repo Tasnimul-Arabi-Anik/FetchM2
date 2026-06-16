@@ -79,10 +79,10 @@ Verify:
 fetchm2 --version
 ```
 
-To install the validated `0.1.8` GitHub release tag before the PyPI package is updated:
+To install the validated `0.1.9` GitHub release tag before the PyPI package is updated:
 
 ```bash
-pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.8"
+pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.9"
 ```
 
 ### Option 2: conda / mamba environment

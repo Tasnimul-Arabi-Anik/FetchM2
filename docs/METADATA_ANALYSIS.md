@@ -92,3 +92,7 @@ fetchm2 metadata --input test.tsv --outdir test_out_live
 ```
 
 This fetches BioSample metadata and can populate host, geography, source/sample/environment fields when those attributes exist at NCBI.
+
+## Figures And Geographic Outputs
+
+FetchM2 does not package static FetchM WEB figure assets. Instead, each `metadata` or `analyze` run generates standalone analysis figures from the user's current input table under `metadata_analysis/figures/`. Geography-related output is represented through standardized `Country`, `Continent`, and `Subcontinent` distributions and their generated bar plots.

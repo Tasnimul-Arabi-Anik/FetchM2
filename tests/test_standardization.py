@@ -152,3 +152,76 @@ def test_audit_reports_assembly_and_biosample_units_separately() -> None:
     assert summary["unique_biosample_accessions"] == 1
     assert summary["biosample_reused_extra_rows"] == 1
     assert summary["biosamples_with_multiple_assembly_accessions"] == 1
+
+
+def test_fetchm_web_freeze_host_rules_are_packaged() -> None:
+    cases = [
+        ("waterlettuce", "Pistia stratiotes", "4477"),
+        ("water lettuce", "Pistia stratiotes", "4477"),
+        ("shorebird", "Charadriiformes", "8906"),
+        ("Cuttloefish", "Sepiidae", "6608"),
+    ]
+    for raw, host, taxid in cases:
+        row = standardize_row({"Host": raw})
+        assert row["Host_SD"] == host
+        assert row["Host_TaxID"] == taxid
+
+
+def test_fetchm_web_freeze_source_context_examples() -> None:
+    ground_turkey = standardize_row({"Isolation Source": "ground turkey"})
+    assert ground_turkey["Country"] == ""
+    assert ground_turkey["Isolation_Source_SD_Broad"] == "food/meat"
+    assert ground_turkey["Sample_Type_SD"] == "turkey meat"
+
+    enrichment = standardize_row(
+        {"Isolation Source": "benzene-degrading enrichment culture", "Sample Type": "culture"}
+    )
+    assert enrichment["Isolation_Source_SD"] == ""
+    assert enrichment["Sample_Type_SD"] == "culture"
+
+    clinical = standardize_row({"Isolation Source": "clinical sample"})
+    assert clinical["Isolation_Source_SD"] == "clinical/host-associated material"
+    assert clinical["Sample_Type_SD"] == "clinical sample"
+    assert clinical["Host_Disease_SD"] == ""
+
+    wastewater = standardize_row({"Isolation Source": "wastewater surveillance"})
+    assert wastewater["Isolation_Source_SD"] == "environmental material"
+    assert wastewater["Environment_Medium_SD"] == "wastewater"
+    assert wastewater["Host_Disease_SD"] == ""
+
+    canal_water = standardize_row({"Isolation Source": "canal water"})
+    assert canal_water["Environment_Medium_SD"] == "canal water"
+    assert canal_water["Environment_Local_Scale_SD"] == "canal"
+    assert canal_water["Isolation_Site_SD"] == ""
+
+    ear_canal = standardize_row({"Isolation Source": "ear canal"})
+    assert ear_canal["Isolation_Site_SD"] == "organ/tissue site"
+    assert ear_canal["Environment_Medium_SD"] == ""
+
+
+def test_fetchm_web_freeze_batch8_context_resolutions() -> None:
+    infection = standardize_row({"Isolation Source": "infection"})
+    assert infection["Host_Disease_SD"] == "infectious disease"
+    assert infection["Host_Health_State_SD"] == "diseased"
+    assert infection["Isolation_Source_SD"] == "clinical/host-associated material"
+
+    outbreak = standardize_row({"Isolation Source": "outbreak"})
+    assert outbreak["Host_Disease_SD"] == ""
+    assert outbreak["Isolation_Source_SD"] == ""
+
+    food = standardize_row({"Isolation Source": "contaminated food"})
+    assert food["Isolation_Source_SD_Broad"] == "food"
+    assert food["Host_Disease_SD"] == ""
+
+    carrier = standardize_row({"Isolation Source": "carrier"})
+    assert carrier["Host_Health_State_SD"] == "carrier"
+    assert carrier["Host_Disease_SD"] == ""
+    assert carrier["Isolation_Source_SD"] == "clinical/host-associated material"
+
+    colonized = standardize_row({"Isolation Source": "colonized"})
+    assert colonized["Host_Health_State_SD"] == "colonized"
+    assert colonized["Host_Disease_SD"] == ""
+
+    patient = standardize_row({"Isolation Source": "patient"})
+    assert patient["Isolation_Source_SD"] == "clinical/host-associated material"
+    assert patient["Host_Disease_SD"] == ""

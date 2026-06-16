@@ -4,6 +4,20 @@ All notable FetchM2 release changes are recorded here.
 
 FetchM2 is a standalone CLI successor to FetchM. It packages expanded deterministic metadata standardization, metadata analysis, audit/validation reporting, and sequence-download filtering into a terminal workflow.
 
+## 0.1.9 - 2026-06-16
+
+### Changed
+
+- Synced packaged standardization rule files with the FetchM WEB production freeze from commit `aa84f2c` / deployment record `66d38d1`.
+- Updated packaged host synonym, host negative, source/sample/environment controlled-category, and approved broad-category rules.
+- Added packaged host context and microbial allowlist CSVs for parity/provenance with FetchM WEB.
+- Added exact compatibility routing for the 2026-06-16 freeze examples, including waterlettuce, shorebird, Cuttloefish, clinical sample, wastewater surveillance, canal water, ear canal, and Batch 8 disease/clinical/source-context resolutions.
+
+### Validation
+
+- Added regression tests for the FetchM WEB freeze examples.
+- Geographic-map/static figure assets were not copied from FetchM WEB; standalone FetchM2 continues to generate metadata analysis figures dynamically under `metadata_analysis/figures/`.
+
 ## 0.1.7 - 2026-05-06
 
 ### Added

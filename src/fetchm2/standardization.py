@@ -639,8 +639,122 @@ def apply_controlled_rules(row: dict[str, Any]) -> dict[str, str]:
             output["Sample_Type_SD"] = "pure/single culture"
             if not output.get("Sample_Type_SD_Broad"):
                 output["Sample_Type_SD_Broad"] = "culture/laboratory"
+    apply_fetchm_web_freeze_context_rules(row, output)
     output["FetchM2_Standardization_Notes"] = "; ".join(notes)
     return output
+
+
+def apply_fetchm_web_freeze_context_rules(row: dict[str, Any], output: dict[str, str]) -> None:
+    """Mirror final FetchM WEB freeze context routing for exact reviewed values.
+
+    These are conservative exact-value compatibility rules from the 2026-06-16
+    production freeze. They avoid importing the full web application router while
+    preserving the standalone tool's output contract for high-value examples.
+    """
+    raw_isolation_source = first_present(row, SOURCE_FIELDS["Isolation Source"])
+    source_key = normalize_lookup(raw_isolation_source)
+    if not source_key:
+        return
+
+    def set_if_present(updates: dict[str, str], *, override: bool = True) -> None:
+        for field, value in updates.items():
+            if field not in output:
+                continue
+            if override or not output.get(field):
+                output[field] = value
+
+    exact_updates = {
+        "ground turkey": {
+            "Isolation_Source_SD": "turkey meat/product",
+            "Isolation_Source_SD_Broad": "food/meat",
+            "Sample_Type_SD": "turkey meat",
+        },
+        "clinical sample": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+            "Sample_Type_SD": "clinical sample",
+        },
+        "clinical": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+            "Sample_Type_SD": "clinical sample",
+        },
+        "patient": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+        },
+        "infection": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+            "Host_Disease_SD": "infectious disease",
+            "Host_Health_State_SD": "diseased",
+        },
+        "infected animal": {
+            "Isolation_Source_SD": "host-associated context",
+            "Isolation_Source_SD_Broad": "host-associated context",
+            "Host_Disease_SD": "infectious disease",
+            "Host_Health_State_SD": "diseased",
+        },
+        "diseased plant": {
+            "Isolation_Source_SD": "plant-associated material",
+            "Isolation_Source_SD_Broad": "plant-associated material",
+            "Isolation_Site_SD": "plant-associated material",
+            "Host_Disease_SD": "plant disease, unspecified",
+            "Host_Health_State_SD": "diseased",
+        },
+        "outbreak food source": {
+            "Isolation_Source_SD": "food/food product",
+            "Isolation_Source_SD_Broad": "food",
+            "Sample_Type_SD": "food product",
+        },
+        "contaminated food": {
+            "Isolation_Source_SD": "food/food product",
+            "Isolation_Source_SD_Broad": "food",
+            "Sample_Type_SD": "food",
+        },
+        "wastewater surveillance": {
+            "Isolation_Source_SD": "environmental material",
+            "Isolation_Source_SD_Broad": "environmental material",
+            "Environment_Medium_SD": "wastewater",
+        },
+        "carrier": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+            "Host_Disease_SD": "",
+            "Host_Health_State_SD": "carrier",
+        },
+        "colonized": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+            "Host_Disease_SD": "",
+            "Host_Health_State_SD": "colonized",
+        },
+        "canal water": {
+            "Isolation_Source_SD": "environmental material",
+            "Isolation_Source_SD_Broad": "environmental material",
+            "Environment_Medium_SD": "canal water",
+            "Environment_Local_Scale_SD": "canal",
+            "Isolation_Site_SD": "",
+        },
+        "ear canal": {
+            "Isolation_Source_SD": "clinical/host-associated material",
+            "Isolation_Source_SD_Broad": "clinical/host-associated material",
+            "Environment_Medium_SD": "",
+            "Isolation_Site_SD": "organ/tissue site",
+        },
+    }
+    set_if_present(exact_updates.get(source_key, {}))
+
+    sample_key = normalize_lookup(first_present(row, SOURCE_FIELDS["Sample Type"]))
+    if (
+        output.get("Isolation_Source_SD") == "culture"
+        and sample_key in {"culture", "enrichment culture"}
+        and "enrichment culture" in source_key
+        and source_key != "enrichment culture"
+        and not output.get("Environment_Medium_SD")
+    ):
+        output["Isolation_Source_SD"] = ""
+        output["Isolation_Source_SD_Broad"] = ""
 
 
 def standardize_collection_year(row: dict[str, Any]) -> str:
