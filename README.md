@@ -80,10 +80,10 @@ Verify:
 fetchm2 --version
 ```
 
-To install the validated `0.1.9` GitHub release tag before the PyPI package is updated:
+To install the current GitHub source before the PyPI package is updated:
 
 ```bash
-pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.9"
+pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@main"
 ```
 
 ### Option 2: conda / mamba environment
@@ -126,6 +126,14 @@ cd FetchM2
 python -m pip install -e ".[dev]"
 pytest
 ```
+
+For publication or review checks, run the bundled no-network validation script:
+
+```bash
+./scripts/review_check.sh
+```
+
+See `docs/REVIEWER_GUIDE.md` for expected outputs, optional live NCBI checks, and review boundaries.
 
 ## NCBI API Key
 

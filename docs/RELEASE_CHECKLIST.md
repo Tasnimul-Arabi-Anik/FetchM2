@@ -7,11 +7,12 @@ Use this checklist before each GitHub/PyPI release.
 - Update `src/fetchm2/__init__.py` version.
 - Update `pyproject.toml` version.
 - Run `pytest`.
+- Run `./scripts/review_check.sh`.
 - Run `python -m build`.
 - Run `python -m twine check dist/*`.
 - Install the wheel in a clean environment.
 - Run offline metadata smoke test.
-- Run sequence `--check-only` smoke test.
+- Run sequence `--check-only` smoke test, including random and manual subset modes.
 - Run a small live NCBI smoke test when network access is available.
 - Confirm no API keys, tokens, caches, or output directories are committed.
 

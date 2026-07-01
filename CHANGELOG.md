@@ -13,6 +13,7 @@ FetchM2 is a standalone CLI successor to FetchM. It packages expanded determinis
 - Added reproducible seeded random selection after metadata filters.
 - Added exact manual accession selection after filters without treating `GCA_*` and `GCF_*` as interchangeable.
 - Added `selected_accessions.txt` and `sequence_selection_summary.json` with selected-accession manifest SHA-256 and compact subset counts.
+- Added `scripts/review_check.sh` and `docs/REVIEWER_GUIDE.md` for no-network publication/reviewer validation.
 
 ### Preserved
 
