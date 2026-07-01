@@ -60,6 +60,7 @@ Optional filtered sequence download
 - Produces audit summaries, production-readiness gates, leakage checks, and review queues.
 - Downloads genome FASTA files from NCBI.
 - Supports flexible sequence-download filtering by standardized metadata.
+- Supports all, seeded-random, and exact manual sequence subset selection after filters.
 - Includes `test.tsv`, matching the public FetchM-style test dataset layout.
 - Includes `examples/offline_metadata.tsv` for fast local smoke testing.
 
@@ -630,7 +631,10 @@ Filtering options:
 - `--environment-medium`
 - `--year-from`
 - `--year-to`
-- `--max-genomes`
+- `--max-genomes` for the legacy first-N cap after filtering
+- `--subset-mode all|random|manual`
+- `--subset-count` and `--subset-seed` for reproducible random subsets
+- `--accessions` and `--accessions-file` for exact manual accession subsets
 
 Download control:
 
@@ -645,7 +649,11 @@ Outputs:
 - genome FASTA files
 - `failed_accessions.txt`
 - `sequence_download_summary.csv`
+- `sequence_selection_summary.json`
+- `selected_accessions.txt`
 - `fetchm2_sequence_cache.sqlite3`
+
+`selected_accessions.txt` records the exact selected accession list. `sequence_selection_summary.json` records subset mode, selected counts, missing/duplicate/invalid manual counts, and the selected-accession manifest checksum.
 
 `sequence_download_summary.csv` includes stable downstream matching columns:
 

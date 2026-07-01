@@ -36,7 +36,37 @@ Supported filters include:
 - `--isolation-source`
 - `--environment-medium`
 - `--year-from` and `--year-to`
-- `--max-genomes`
+- `--max-genomes` for the legacy first-N cap after filtering
+- `--subset-mode all|random|manual`
+- `--subset-count` and `--subset-seed` for reproducible random subsets
+- `--accessions` and `--accessions-file` for exact manual accession subsets
+
+## Subset Selection
+
+By default, FetchM2 keeps the previous behavior and selects all filtered rows, or the first `--max-genomes` rows when that legacy cap is supplied. For a reproducible random subset, use:
+
+```bash
+fetchm2 seq \
+  --input results/metadata_output/fetchm2_clean.csv \
+  --outdir results/sequence_random_bd \
+  --country Bangladesh \
+  --subset-mode random \
+  --subset-count 25 \
+  --subset-seed 20260701
+```
+
+For an exact manual subset after all metadata filters are applied:
+
+```bash
+fetchm2 seq \
+  --input results/metadata_output/fetchm2_clean.csv \
+  --outdir results/sequence_manual \
+  --country Bangladesh \
+  --subset-mode manual \
+  --accessions GCA_000000001.1 GCF_000000002.1
+```
+
+Manual accessions can also be supplied from a file with `--accessions-file`. Files may use newlines, spaces, commas, or semicolons. Accessions are matched exactly after case normalization; `GCA_*` and `GCF_*` are not treated as interchangeable. Duplicate, missing, invalid, and selected counts are reported in `sequence_selection_summary.json`.
 
 ## Check Only
 
@@ -51,6 +81,8 @@ fetchm2 seq --input fetchm2_clean.csv --outdir sequence --check-only
 FetchM2 always writes:
 
 - `sequence_download_summary.csv`
+- `sequence_selection_summary.json`
+- `selected_accessions.txt`
 - `failed_accessions.txt`
 
 `sequence_download_summary.csv` includes these stable downstream matching columns:
@@ -63,5 +95,7 @@ FetchM2 always writes:
 - `sequence_file`
 - `failure_reason`
 - `ftp_path`
+
+`selected_accessions.txt` records the exact selected accession list, and `sequence_selection_summary.json` records its SHA-256 checksum plus subset-mode counts without embedding the full accession list in JSON.
 
 The `sequence_file` value matches the expected FASTA basename used by FetchM2. Assembly accession versions are preserved so downstream tools can match ABRicate, MLST, MobileElementFinder, IntegronFinder, DefenseFinder, PanR2, and PanResistome outputs by `Assembly Accession` or by `sample_id` from `metadata_output/sample_map.csv`.
