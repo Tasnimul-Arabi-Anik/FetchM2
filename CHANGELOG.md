@@ -4,6 +4,22 @@ All notable FetchM2 release changes are recorded here.
 
 FetchM2 is a standalone CLI successor to FetchM. It packages expanded deterministic metadata standardization, metadata analysis, audit/validation reporting, and sequence-download filtering into a terminal workflow.
 
+## 0.1.10 - 2026-07-01
+
+### Added
+
+- Added standalone sequence subset selection for `fetchm2 seq` and `fetchm2 run --download`.
+- Added `--subset-mode all|random|manual`, `--subset-count`, `--subset-seed`, `--accessions`, and `--accessions-file`.
+- Added reproducible seeded random selection after metadata filters.
+- Added exact manual accession selection after filters without treating `GCA_*` and `GCF_*` as interchangeable.
+- Added `selected_accessions.txt` and `sequence_selection_summary.json` with selected-accession manifest SHA-256 and compact subset counts.
+- Added `scripts/review_check.sh` and `docs/REVIEWER_GUIDE.md` for no-network publication/reviewer validation.
+
+### Preserved
+
+- `--max-genomes` remains available as the legacy first-N cap for `--subset-mode all`.
+- `sequence_download_summary.csv` remains the stable downstream file-level download summary.
+
 ## 0.1.9 - 2026-06-16
 
 ### Changed

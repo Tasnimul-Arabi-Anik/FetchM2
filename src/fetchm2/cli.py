@@ -22,7 +22,15 @@ def add_filter_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--environment-medium", nargs="+", help="Filter by Environment_Medium_SD.")
     parser.add_argument("--year-from", type=int, help="Minimum Collection_Year.")
     parser.add_argument("--year-to", type=int, help="Maximum Collection_Year.")
-    parser.add_argument("--max-genomes", type=int, help="Maximum selected genomes for sequence download.")
+    parser.add_argument("--max-genomes", type=int, help="Legacy first-N cap after filtering; compatible with --subset-mode all.")
+
+
+def add_sequence_subset_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--subset-mode", choices=["all", "random", "manual"], default="all", help="Subset selected filtered genomes before download.")
+    parser.add_argument("--subset-count", type=int, help="Number of genomes for --subset-mode random.")
+    parser.add_argument("--subset-seed", type=int, help="Seed for reproducible random subset selection.")
+    parser.add_argument("--accessions", nargs="+", default=[], help="Manual GCA/GCF assembly accessions for --subset-mode manual.")
+    parser.add_argument("--accessions-file", action="append", type=Path, default=[], help="File containing manual GCA/GCF accessions for --subset-mode manual; accepts whitespace, comma, or semicolon separated values.")
 
 
 def add_metadata_source_args(parser: argparse.ArgumentParser) -> None:
@@ -90,6 +98,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--retry-delay", type=float, default=5.0, help="Download retry delay.")
     run.add_argument("--keep-gz", action="store_true", help="Keep compressed FASTA files instead of decompressing.")
     add_filter_args(run)
+    add_sequence_subset_args(run)
     run.set_defaults(func=run_all_command)
 
     seq = subparsers.add_parser("seq", help="Download sequences from fetchm2_clean.csv.")
@@ -101,6 +110,7 @@ def build_parser() -> argparse.ArgumentParser:
     seq.add_argument("--check-only", action="store_true", help="Audit sequence directory without downloading.")
     seq.add_argument("--keep-gz", action="store_true", help="Keep compressed FASTA files instead of decompressing.")
     add_filter_args(seq)
+    add_sequence_subset_args(seq)
     seq.set_defaults(func=run_seq_command)
 
     audit = subparsers.add_parser("audit", help="Audit an existing standardized CSV.")
@@ -133,6 +143,27 @@ def filter_dict(args: argparse.Namespace) -> dict[str, object]:
         "environment_medium": args.environment_medium,
         "year_from": args.year_from,
         "year_to": args.year_to,
+    }
+
+
+def subset_kwargs(args: argparse.Namespace) -> dict[str, object]:
+    return {
+        "subset_mode": args.subset_mode,
+        "subset_count": args.subset_count,
+        "subset_seed": args.subset_seed,
+        "manual_accessions": "\n".join(args.accessions or []),
+        "manual_accession_files": args.accessions_file or [],
+    }
+
+
+def sequence_request_metadata(args: argparse.Namespace) -> dict[str, object]:
+    return {
+        "max_genomes": args.max_genomes,
+        "subset_mode": args.subset_mode,
+        "subset_count": args.subset_count,
+        "subset_seed": args.subset_seed,
+        "manual_accession_argument_count": len(args.accessions or []),
+        "manual_accession_file_count": len(args.accessions_file or []),
     }
 
 
@@ -247,13 +278,14 @@ def run_all_command(args: argparse.Namespace) -> None:
             workers=args.download_workers,
             max_genomes=args.max_genomes,
             keep_gz=args.keep_gz,
+            **subset_kwargs(args),
         )
         update_pipeline_manifest_downloads(
             Path(result["manifest_path"]),
             sequence_selected_count=int(sequence_summary.get("selected", 0)),
             downloaded_count=int(sequence_summary.get("downloaded", 0)),
             failed_download_count=int(sequence_summary.get("failed", 0)),
-            sequence_filters_used={**filter_dict(args), "max_genomes": args.max_genomes},
+            sequence_filters_used={**filter_dict(args), **sequence_request_metadata(args)},
         )
         print(f"Sequence summary: {sequence_summary}")
     print_final_summary(
@@ -277,6 +309,7 @@ def run_seq_command(args: argparse.Namespace) -> None:
         check_only=args.check_only,
         max_genomes=args.max_genomes,
         keep_gz=args.keep_gz,
+        **subset_kwargs(args),
     )
     print(f"Sequence summary: {summary}")
 

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
+import json
+import random
 import re
 import shutil
 import sqlite3
@@ -14,10 +17,18 @@ import requests
 from tqdm import tqdm
 
 BASE_URL = "https://ftp.ncbi.nlm.nih.gov/genomes/all"
+ACCESSION_RE = re.compile(r"^(?:GCA|GCF)_\d{9}(?:\.\d+)?$")
+ACCESSION_TOKEN_RE = re.compile(r"[\s,;]+")
+MANUAL_ACCESSION_LIMIT = 10_000
+MANUAL_ACCESSION_TEXT_LIMIT = 1_048_576
 
 
 def normalize_text(value: Any) -> str:
     return str(value or "").strip().lower()
+
+
+def normalize_accession(value: Any) -> str:
+    return str(value or "").strip().upper()
 
 
 def normalize_assembly_name(name: str) -> str:
@@ -160,12 +171,185 @@ def row_matches_filters(row: dict[str, Any], filters: dict[str, Any]) -> bool:
     return True
 
 
-def select_rows(input_path: Path, filters: dict[str, Any], max_genomes: int | None) -> list[dict[str, Any]]:
+def read_rows(input_path: Path) -> list[dict[str, Any]]:
     df = pd.read_csv(input_path)
-    rows = [row for row in df.fillna("").to_dict(orient="records") if row_matches_filters(row, filters)]
-    if max_genomes is not None:
-        rows = rows[:max_genomes]
-    return rows
+    return df.fillna("").to_dict(orient="records")
+
+
+def split_manual_accessions(accession_text: str = "", accession_files: list[Path] | None = None) -> dict[str, Any]:
+    parts: list[str] = []
+    text_bytes = len(accession_text.encode("utf-8"))
+    if text_bytes > MANUAL_ACCESSION_TEXT_LIMIT:
+        return {
+            "accessions": [],
+            "duplicates": 0,
+            "invalid": [],
+            "submitted": 0,
+            "error": f"Manual accession input is {text_bytes:,} bytes; limit is {MANUAL_ACCESSION_TEXT_LIMIT:,} bytes.",
+        }
+    if accession_text:
+        parts.extend(token for token in ACCESSION_TOKEN_RE.split(accession_text.strip()) if token)
+    for file_path in accession_files or []:
+        file_text = file_path.read_text(encoding="utf-8")
+        text_bytes += len(file_text.encode("utf-8"))
+        if text_bytes > MANUAL_ACCESSION_TEXT_LIMIT:
+            return {
+                "accessions": [],
+                "duplicates": 0,
+                "invalid": [],
+                "submitted": len(parts),
+                "error": f"Manual accession input exceeds {MANUAL_ACCESSION_TEXT_LIMIT:,} bytes across text and files.",
+            }
+        parts.extend(token for token in ACCESSION_TOKEN_RE.split(file_text.strip()) if token)
+
+    seen: set[str] = set()
+    accessions: list[str] = []
+    invalid: list[str] = []
+    duplicates = 0
+    for token in parts:
+        accession = normalize_accession(token)
+        if not ACCESSION_RE.fullmatch(accession):
+            invalid.append(token)
+            continue
+        if accession in seen:
+            duplicates += 1
+            continue
+        seen.add(accession)
+        accessions.append(accession)
+        if len(accessions) > MANUAL_ACCESSION_LIMIT:
+            return {
+                "accessions": accessions,
+                "duplicates": duplicates,
+                "invalid": invalid,
+                "submitted": len(parts),
+                "error": f"Manual accession selection exceeds {MANUAL_ACCESSION_LIMIT:,} unique accessions.",
+            }
+    return {
+        "accessions": accessions,
+        "duplicates": duplicates,
+        "invalid": invalid,
+        "submitted": len(parts),
+        "error": "",
+    }
+
+
+def apply_sequence_subset(
+    rows: list[dict[str, Any]],
+    *,
+    subset_mode: str = "all",
+    subset_count: int | None = None,
+    subset_seed: int | None = None,
+    manual_accessions: str = "",
+    manual_accession_files: list[Path] | None = None,
+    max_genomes: int | None = None,
+) -> dict[str, Any]:
+    mode = (subset_mode or "all").strip().lower()
+    if mode not in {"all", "random", "manual"}:
+        return {"rows": [], "metadata": {"error": f"Unsupported subset mode: {subset_mode}"}}
+    if max_genomes is not None and max_genomes <= 0:
+        return {"rows": [], "metadata": {"error": "--max-genomes must be a positive integer."}}
+    if mode != "all" and max_genomes is not None:
+        return {"rows": [], "metadata": {"error": "--max-genomes is only compatible with --subset-mode all."}}
+
+    matched_total = len(rows)
+    metadata: dict[str, Any] = {
+        "mode": mode,
+        "matched_row_total": matched_total,
+        "selected_row_total": 0,
+        "selected_accession_total": 0,
+        "requested_count": subset_count,
+        "random_seed": subset_seed,
+        "random_request_exceeds_matches": False,
+        "manual_submitted_total": 0,
+        "manual_duplicate_total": 0,
+        "manual_invalid_total": 0,
+        "manual_missing_total": 0,
+        "manual_missing_accessions": [],
+        "error": "",
+    }
+
+    if mode == "all":
+        selected = list(rows)
+        if max_genomes is not None:
+            selected = selected[:max_genomes]
+            metadata["requested_count"] = max_genomes
+    elif mode == "random":
+        if subset_count is None or subset_count <= 0:
+            metadata["error"] = "--subset-count must be a positive integer for --subset-mode random."
+            return {"rows": [], "metadata": metadata}
+        sorted_rows = sorted(rows, key=lambda row: normalize_accession(row.get("Assembly Accession")))
+        if subset_count >= len(sorted_rows):
+            selected = sorted_rows
+            metadata["random_request_exceeds_matches"] = subset_count > len(sorted_rows)
+        else:
+            selected = random.Random(subset_seed).sample(sorted_rows, subset_count)
+    else:
+        parsed = split_manual_accessions(manual_accessions, manual_accession_files)
+        metadata["manual_submitted_total"] = parsed["submitted"]
+        metadata["manual_duplicate_total"] = parsed["duplicates"]
+        metadata["manual_invalid_total"] = len(parsed["invalid"])
+        if parsed["error"]:
+            metadata["error"] = parsed["error"]
+            return {"rows": [], "metadata": metadata}
+        if parsed["invalid"]:
+            metadata["error"] = "Malformed manual accession token(s): " + ", ".join(parsed["invalid"][:20])
+            return {"rows": [], "metadata": metadata}
+        if not parsed["accessions"]:
+            metadata["error"] = "--subset-mode manual requires --accessions or --accessions-file."
+            return {"rows": [], "metadata": metadata}
+        rows_by_accession = {normalize_accession(row.get("Assembly Accession")): row for row in rows}
+        selected = []
+        missing = []
+        for accession in parsed["accessions"]:
+            row = rows_by_accession.get(accession)
+            if row is None:
+                missing.append(accession)
+                continue
+            selected.append(row)
+        metadata["manual_missing_total"] = len(missing)
+        metadata["manual_missing_accessions"] = missing[:200]
+        if not selected:
+            metadata["error"] = "Manual accession selection matched zero rows after filters."
+            return {"rows": [], "metadata": metadata}
+
+    selected_accessions = [normalize_accession(row.get("Assembly Accession")) for row in selected if normalize_accession(row.get("Assembly Accession"))]
+    metadata["selected_row_total"] = len(selected)
+    metadata["selected_accession_total"] = len(selected_accessions)
+    return {"rows": selected, "metadata": metadata}
+
+
+def selected_accession_manifest(outdir: Path, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    accessions = [normalize_accession(row.get("Assembly Accession")) for row in rows if normalize_accession(row.get("Assembly Accession"))]
+    path = outdir / "selected_accessions.txt"
+    text = "\n".join(accessions) + ("\n" if accessions else "")
+    path.write_text(text, encoding="utf-8")
+    return {
+        "selected_accessions_manifest_path": path.name,
+        "selected_accessions_manifest_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
+
+
+def select_rows(
+    input_path: Path,
+    filters: dict[str, Any],
+    max_genomes: int | None,
+    *,
+    subset_mode: str = "all",
+    subset_count: int | None = None,
+    subset_seed: int | None = None,
+    manual_accessions: str = "",
+    manual_accession_files: list[Path] | None = None,
+) -> dict[str, Any]:
+    matched_rows = [row for row in read_rows(input_path) if row_matches_filters(row, filters)]
+    return apply_sequence_subset(
+        matched_rows,
+        subset_mode=subset_mode,
+        subset_count=subset_count,
+        subset_seed=subset_seed,
+        manual_accessions=manual_accessions,
+        manual_accession_files=manual_accession_files,
+        max_genomes=max_genomes,
+    )
 
 
 def download_one(
@@ -243,10 +427,33 @@ def run_sequence_downloads(
     check_only: bool = False,
     max_genomes: int | None = None,
     keep_gz: bool = False,
+    subset_mode: str = "all",
+    subset_count: int | None = None,
+    subset_seed: int | None = None,
+    manual_accessions: str = "",
+    manual_accession_files: list[Path] | None = None,
 ) -> dict[str, Any]:
     outdir.mkdir(parents=True, exist_ok=True)
     filters = filters or {}
-    rows = select_rows(input_path, filters, max_genomes)
+    selection = select_rows(
+        input_path,
+        filters,
+        max_genomes,
+        subset_mode=subset_mode,
+        subset_count=subset_count,
+        subset_seed=subset_seed,
+        manual_accessions=manual_accessions,
+        manual_accession_files=manual_accession_files,
+    )
+    rows = selection["rows"]
+    subset_metadata = selection["metadata"]
+    if subset_metadata.get("error"):
+        raise ValueError(str(subset_metadata["error"]))
+    subset_metadata.update(selected_accession_manifest(outdir, rows))
+    (outdir / "sequence_selection_summary.json").write_text(
+        json.dumps(subset_metadata, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     expected = [str(row.get("Assembly Accession") or "").strip() for row in rows]
     if check_only:
         existing = {path.name.split("_", 2)[0] + "_" + path.name.split("_", 2)[1] for path in outdir.glob("*_genomic.fna*")}
@@ -265,7 +472,7 @@ def run_sequence_downloads(
                 for row in rows
             ]
         ).to_csv(outdir / "sequence_download_summary.csv", index=False)
-        return {"selected": len(rows), "missing": len(missing), "downloaded": 0, "failed": len(missing)}
+        return {"selected": len(rows), "missing": len(missing), "downloaded": 0, "failed": len(missing), "subset": subset_metadata}
     cache = DirectoryCache(outdir / "fetchm2_sequence_cache.sqlite3")
     results: list[dict[str, Any]] = []
     try:
@@ -289,6 +496,7 @@ def run_sequence_downloads(
         "downloaded": sum(1 for result in results if result.get("download_status") == "downloaded"),
         "existing": sum(1 for result in results if result.get("download_status") == "exists"),
         "failed": len(failed),
+        "subset": subset_metadata,
     }
     pd.DataFrame(results).to_csv(outdir / "sequence_download_summary.csv", index=False)
     return summary

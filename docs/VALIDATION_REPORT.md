@@ -1,7 +1,7 @@
 # FetchM2 Validation Report
 
 Validation date: 2026-05-06
-Current validation target: `fetchm2 0.1.8`
+Current validation target: `fetchm2 0.1.10`
 
 ## Source Baselines
 
@@ -585,4 +585,63 @@ fetchm2 --version from installed wheel: fetchm2 0.1.8
 python -m fetchm2 --help from installed wheel: passed
 offline metadata smoke from installed wheel: production gate PASS
 validate command smoke from installed wheel: production gate PASS
+```
+
+## Additional 0.1.10 Sequence-Subset and Reviewer Validation
+
+Validation date: 2026-07-01
+
+The 0.1.10 update adds standalone sequence-subset selection and explicit reviewer validation artifacts while keeping FetchM2 CLI-only.
+
+Implemented behavior:
+
+```text
+fetchm2 seq --subset-mode all
+fetchm2 seq --subset-mode random --subset-count N --subset-seed SEED
+fetchm2 seq --subset-mode manual --accessions GCF_... GCA_...
+fetchm2 seq --subset-mode manual --accessions-file accessions.txt
+fetchm2 run --download --subset-mode random --subset-count N --subset-seed SEED
+```
+
+Validation performed on the feature branch:
+
+```text
+fetchm2 --version: fetchm2 0.1.10
+fetchm2 seq --help: shows --subset-mode, --subset-count, --subset-seed, --accessions, and --accessions-file
+pytest -q: 27 passed
+targeted sequence subset tests: 4 passed
+python -m py_compile src/fetchm2/*.py tests/*.py: passed
+git diff --check: passed
+python -m build: passed
+python -m twine check dist/fetchm2-0.1.10*: passed
+source distribution includes scripts/review_check.sh: passed
+```
+
+Reviewer script validation:
+
+```text
+Command: ./scripts/review_check.sh
+Result: passed
+CLI help commands: passed
+pytest -q: 27 passed
+py_compile: passed
+offline metadata smoke: production gate PASS
+validate command smoke: production gate PASS
+analysis command smoke: generated metadata_analysis_report.md and 35 figures
+random subset check-only smoke: selected 1 accession and wrote selected_accessions.txt
+manual subset check-only smoke: selected 1 valid synthetic GCF accession and wrote selected_accessions.txt
+required review artifacts: present
+```
+
+The reviewer script is intentionally no-network. It uses bundled offline metadata and a small synthetic valid accession row for manual sequence-subset validation, avoiding NCBI load while still exercising the selection, manifest, and summary-writing paths.
+
+Sequence-subset review boundary:
+
+```text
+All mode preserves previous behavior.
+Random mode is reproducible for the same filters, count, and seed.
+Manual mode applies exact GCA/GCF accession matching after metadata filters.
+Manual mode does not silently treat GCA and GCF accessions as interchangeable.
+Selected accessions are written to selected_accessions.txt with SHA-256 metadata.
+Large selected-accession arrays are not embedded directly in command metadata.
 ```

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -9,7 +10,7 @@ import pytest
 
 from fetchm2.cli import build_parser, main
 from fetchm2.metadata import MetadataCache, RequestRateLimiter, fetch_biosample_metadata, fetch_taxon_dataset
-from fetchm2.sequence import DirectoryCache
+from fetchm2.sequence import DirectoryCache, apply_sequence_subset, run_sequence_downloads
 
 
 def test_metadata_cli_taxon_query_generates_dataset(tmp_path: Path, monkeypatch) -> None:
@@ -138,6 +139,128 @@ def test_metadata_cli_offline(tmp_path: Path, monkeypatch) -> None:
     assert list(sample_map.columns) == ["sample_id", "Assembly Accession", "Assembly Name", "sequence_file"]
     assert sample_map["Assembly Accession"].astype(str).str.contains(r"\.\d+$", regex=True).all()
     assert sample_map["sequence_file"].astype(str).str.endswith(".fna").all()
+
+
+def test_sequence_subset_random_and_manual_modes() -> None:
+    rows = [
+        {"Assembly Accession": "GCA_000000003.1", "Country": "Bangladesh"},
+        {"Assembly Accession": "GCA_000000001.1", "Country": "Bangladesh"},
+        {"Assembly Accession": "GCF_000000002.1", "Country": "Bangladesh"},
+    ]
+    default = apply_sequence_subset(rows)
+    assert [row["Assembly Accession"] for row in default["rows"]] == [
+        "GCA_000000003.1",
+        "GCA_000000001.1",
+        "GCF_000000002.1",
+    ]
+
+    random_one = apply_sequence_subset(rows, subset_mode="random", subset_count=2, subset_seed=7)
+    random_two = apply_sequence_subset(list(reversed(rows)), subset_mode="random", subset_count=2, subset_seed=7)
+    random_three = apply_sequence_subset(rows, subset_mode="random", subset_count=2, subset_seed=9)
+    assert [row["Assembly Accession"] for row in random_one["rows"]] == [row["Assembly Accession"] for row in random_two["rows"]]
+    assert [row["Assembly Accession"] for row in random_one["rows"]] != [row["Assembly Accession"] for row in random_three["rows"]]
+
+    overflow = apply_sequence_subset(rows, subset_mode="random", subset_count=20, subset_seed=7)
+    assert overflow["metadata"]["selected_row_total"] == 3
+    assert overflow["metadata"]["random_request_exceeds_matches"] is True
+
+    manual = apply_sequence_subset(
+        rows,
+        subset_mode="manual",
+        manual_accessions="gcf_000000002.1 GCA_999999999.1 GCA_000000001.1 GCA_000000001.1",
+    )
+    assert [row["Assembly Accession"] for row in manual["rows"]] == ["GCF_000000002.1", "GCA_000000001.1"]
+    assert manual["metadata"]["manual_duplicate_total"] == 1
+    assert manual["metadata"]["manual_missing_total"] == 1
+    assert manual["metadata"]["manual_missing_accessions"] == ["GCA_999999999.1"]
+
+
+def test_sequence_subset_rejects_invalid_inputs() -> None:
+    rows = [{"Assembly Accession": "GCA_000000001.1"}]
+    assert apply_sequence_subset(rows, subset_mode="random", subset_count=0)["metadata"]["error"]
+    assert apply_sequence_subset(rows, subset_mode="manual", manual_accessions="SAMN000001")["metadata"]["error"]
+    assert apply_sequence_subset(rows, subset_mode="manual", manual_accessions="GCA_999999999.1")["metadata"]["error"]
+    assert apply_sequence_subset(rows, subset_mode="manual", manual_accessions="GCA_000000001.1", max_genomes=1)["metadata"]["error"]
+
+
+def test_sequence_subset_check_only_writes_manifest_and_compact_metadata(tmp_path: Path) -> None:
+    input_path = tmp_path / "clean.csv"
+    pd.DataFrame(
+        [
+            {"Assembly Accession": "GCA_000000001.1", "Assembly Name": "ASM1", "BioSample": "SAMN1", "Country": "Bangladesh"},
+            {"Assembly Accession": "GCF_000000002.1", "Assembly Name": "ASM2", "BioSample": "SAMN2", "Country": "Bangladesh"},
+            {"Assembly Accession": "GCA_000000003.1", "Assembly Name": "ASM3", "BioSample": "SAMN3", "Country": "India"},
+        ]
+    ).to_csv(input_path, index=False)
+    outdir = tmp_path / "seq"
+
+    summary = run_sequence_downloads(
+        input_path=input_path,
+        outdir=outdir,
+        filters={"country": ["Bangladesh"]},
+        check_only=True,
+        subset_mode="manual",
+        manual_accessions="GCF_000000002.1 GCA_000000003.1 GCA_000000001.1 GCA_000000001.1",
+    )
+
+    manifest_path = outdir / "selected_accessions.txt"
+    manifest_text = manifest_path.read_text(encoding="utf-8")
+    selection = json.loads((outdir / "sequence_selection_summary.json").read_text(encoding="utf-8"))
+    assert summary["selected"] == 2
+    assert manifest_text.splitlines() == ["GCF_000000002.1", "GCA_000000001.1"]
+    assert selection["matched_row_total"] == 2
+    assert selection["selected_accession_total"] == 2
+    assert selection["manual_duplicate_total"] == 1
+    assert selection["manual_missing_total"] == 1
+    assert selection["selected_accessions_manifest_path"] == "selected_accessions.txt"
+    assert selection["selected_accessions_manifest_sha256"] == hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    assert "selected_accessions" not in selection
+    summary_rows = pd.read_csv(outdir / "sequence_download_summary.csv")
+    assert list(summary_rows["Assembly Accession"]) == ["GCF_000000002.1", "GCA_000000001.1"]
+
+
+
+def test_sequence_subset_cli_manual_mode(tmp_path: Path, monkeypatch) -> None:
+    input_path = tmp_path / "clean.csv"
+    pd.DataFrame(
+        [
+            {"Assembly Accession": "GCA_000000001.1", "Assembly Name": "ASM1", "BioSample": "SAMN1", "Country": "Bangladesh"},
+            {"Assembly Accession": "GCF_000000002.1", "Assembly Name": "ASM2", "BioSample": "SAMN2", "Country": "Bangladesh"},
+            {"Assembly Accession": "GCA_000000003.1", "Assembly Name": "ASM3", "BioSample": "SAMN3", "Country": "India"},
+        ]
+    ).to_csv(input_path, index=False)
+    accessions_file = tmp_path / "accessions.txt"
+    accessions_file.write_text("GCF_000000002.1\nGCA_000000001.1\n", encoding="utf-8")
+    outdir = tmp_path / "seq_cli"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "fetchm2",
+            "seq",
+            "--input",
+            str(input_path),
+            "--outdir",
+            str(outdir),
+            "--country",
+            "Bangladesh",
+            "--subset-mode",
+            "manual",
+            "--accessions-file",
+            str(accessions_file),
+            "--check-only",
+        ],
+    )
+    main()
+
+    selection = json.loads((outdir / "sequence_selection_summary.json").read_text(encoding="utf-8"))
+    assert selection["mode"] == "manual"
+    assert selection["matched_row_total"] == 2
+    assert selection["selected_row_total"] == 2
+    assert (outdir / "selected_accessions.txt").read_text(encoding="utf-8").splitlines() == [
+        "GCF_000000002.1",
+        "GCA_000000001.1",
+    ]
+
 
 
 def test_sequence_check_only_cli(tmp_path: Path, monkeypatch) -> None:

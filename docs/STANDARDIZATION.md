@@ -4,7 +4,7 @@ FetchM2 packages deterministic standardization rules from FetchM Web so the stan
 
 ## FetchM WEB Production-Freeze Parity
 
-FetchM2 version `0.1.9` packages the deterministic standardization rules from the FetchM WEB 2026-06-16 production freeze. The source freeze was deployed from commit `aa84f2c` and recorded in deployment commit `66d38d1`.
+FetchM2 version `0.1.10` carries the deterministic standardization rules synced from the FetchM WEB 2026-06-16 production freeze. The source freeze was deployed from commit `aa84f2c` and recorded in deployment commit `66d38d1`.
 
 The synced standalone package includes:
 

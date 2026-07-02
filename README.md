@@ -60,6 +60,7 @@ Optional filtered sequence download
 - Produces audit summaries, production-readiness gates, leakage checks, and review queues.
 - Downloads genome FASTA files from NCBI.
 - Supports flexible sequence-download filtering by standardized metadata.
+- Supports all, seeded-random, and exact manual sequence subset selection after filters.
 - Includes `test.tsv`, matching the public FetchM-style test dataset layout.
 - Includes `examples/offline_metadata.tsv` for fast local smoke testing.
 
@@ -79,10 +80,10 @@ Verify:
 fetchm2 --version
 ```
 
-To install the validated `0.1.9` GitHub release tag before the PyPI package is updated:
+To install the current GitHub source before the PyPI package is updated:
 
 ```bash
-pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@v0.1.9"
+pip install "git+https://github.com/Tasnimul-Arabi-Anik/FetchM2.git@main"
 ```
 
 ### Option 2: conda / mamba environment
@@ -125,6 +126,14 @@ cd FetchM2
 python -m pip install -e ".[dev]"
 pytest
 ```
+
+For publication or review checks, run the bundled no-network validation script:
+
+```bash
+./scripts/review_check.sh
+```
+
+See `docs/REVIEWER_GUIDE.md` for expected outputs, optional live NCBI checks, and review boundaries.
 
 ## NCBI API Key
 
@@ -630,7 +639,10 @@ Filtering options:
 - `--environment-medium`
 - `--year-from`
 - `--year-to`
-- `--max-genomes`
+- `--max-genomes` for the legacy first-N cap after filtering
+- `--subset-mode all|random|manual`
+- `--subset-count` and `--subset-seed` for reproducible random subsets
+- `--accessions` and `--accessions-file` for exact manual accession subsets
 
 Download control:
 
@@ -645,7 +657,11 @@ Outputs:
 - genome FASTA files
 - `failed_accessions.txt`
 - `sequence_download_summary.csv`
+- `sequence_selection_summary.json`
+- `selected_accessions.txt`
 - `fetchm2_sequence_cache.sqlite3`
+
+`selected_accessions.txt` records the exact selected accession list. `sequence_selection_summary.json` records subset mode, selected counts, missing/duplicate/invalid manual counts, and the selected-accession manifest checksum.
 
 `sequence_download_summary.csv` includes stable downstream matching columns:
 
